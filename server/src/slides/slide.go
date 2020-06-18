@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"math"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -40,34 +38,10 @@ type comment struct {
 	Content     string    `json:"content"`
 }
 
-func standardizeQuery(query url.Values) string {
-	ID := ""
-	orderBy := ""
-	order := ""
-	limit := ""
-	offset := ""
-	if _, i := query["id"]; i {
-		orderBy = "WHERE id='" + query["id"][0] + "' "
-	}
-	if _, i := query["orderby"]; i {
-		orderBy = "ORDER BY " + query["orderby"][0] + " "
-	}
-	if _, i := query["order"]; i {
-		order = query["order"][0] + " "
-	}
-	if _, i := query["limit"]; i {
-		limit = "LIMIT " + query["limit"][0] + " "
-	}
-	if _, i := query["offset"]; i {
-		offset = "OFFSET " + query["offset"][0] + " "
-	}
-	return strings.TrimSuffix(" "+ID+orderBy+order+limit+offset, " ")
-}
-
 // GET slides or a slide
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := standardizeQuery(c.Request.URL.Query())
+		query := database.StandardizeQuery(c.Request.URL.Query())
 		slideRows, err := database.Db.Query("SELECT id, title, image_path, origin_date, description, price, stock, category_id, subcategory_id, created_at, updated_at FROM slides" + query + ";")
 		defer slideRows.Close()
 		if err == nil {
@@ -167,7 +141,7 @@ func POST() func(c *gin.Context) {
 // PUT slide
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := standardizeQuery(c.Request.URL.Query())
+		query := database.StandardizeQuery(c.Request.URL.Query())
 		s := &slide{
 			UpdatedAt: time.Now(),
 		}
@@ -206,7 +180,7 @@ func PUT() func(c *gin.Context) {
 // DELETE slide
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := standardizeQuery(c.Request.URL.Query())
+		query := database.StandardizeQuery(c.Request.URL.Query())
 		tx, err := database.Db.Begin()
 		if err == nil {
 			tx.Exec("DELETE FROM slides" + query + ";")

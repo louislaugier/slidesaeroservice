@@ -15,6 +15,7 @@ func Start() *gin.Engine {
 	r.POST("/api/v1/slides", slides.POST())
 	r.PUT("/api/v1/slides", slides.PUT())
 	r.DELETE("/api/v1/slides", slides.DELETE())
+	r.GET("/api/v1/users", user.GET())
 	r.POST("/api/v1/users", user.POST())
 	return r
 }
