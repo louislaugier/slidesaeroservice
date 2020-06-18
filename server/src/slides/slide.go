@@ -29,15 +29,6 @@ type slide struct {
 	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
-type comment struct {
-	ID          uuid.UUID `json:"id"`
-	Username    string    `json:"username"`
-	SlideID     uuid.UUID `json:"slide_id"`
-	Rating      float64   `json:"rating"`
-	PublishDate time.Time `json:"publish_date"`
-	Content     string    `json:"content"`
-}
-
 // GET slides or a slide
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {

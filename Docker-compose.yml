@@ -1,12 +1,12 @@
 version: "3.8"
 services:
-#   redis:
-#     image: redis:6.0.4-alpine
-#     ports:
-#       - "6379:6379"
-#     sysctls:
-#       net.core.somaxconn: '511'
-#     restart: always
+  redis:
+    image: redis:6.0.4-alpine
+    ports:
+      - "6379:6379"
+    sysctls:
+      net.core.somaxconn: '511'
+    restart: always
   postgres:
     image: postgres:13-alpine
     ports:
