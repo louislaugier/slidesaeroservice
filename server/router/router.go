@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // Postgres driver
 	"github.com/louislaugier/sas/server/src/session"
-	"github.com/louislaugier/sas/server/src/slides"
+	slides "github.com/louislaugier/sas/server/src/slide"
 	"github.com/louislaugier/sas/server/src/user"
 )
 
