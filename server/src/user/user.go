@@ -22,7 +22,6 @@ type user struct {
 	Country       string    `json:"country"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at,omitempty"`
-	PaypalEmail   string    `json:"paypal_email,omitempty"`
 	IsAdmin       bool      `json:"is_admin"`
 }
 
@@ -30,13 +29,13 @@ type user struct {
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		userRows, err := database.Db.Query("SELECT id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, paypal_email, is_admin FROM users" + query + ";")
+		userRows, err := database.Postgres.Query("SELECT id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, is_admin FROM users" + query + ";")
 		defer userRows.Close()
 		if err == nil {
 			users := []*user{}
 			for userRows.Next() {
 				u := &user{}
-				userRows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Email, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.PaypalEmail, &u.IsAdmin)
+				userRows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Email, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.IsAdmin)
 				users = append(users, u)
 			}
 			c.JSON(200, &gin.H{
@@ -55,10 +54,8 @@ func GET() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": 0,
+					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -75,9 +72,9 @@ func POST() func(c *gin.Context) {
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, u)
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO users (id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, paypal_email, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);", u.ID, u.Username, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.PaypalEmail, u.IsAdmin)
+			tx.Exec("INSERT INTO users (id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", u.ID, u.Username, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.IsAdmin)
 			tx.Commit()
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -86,7 +83,6 @@ func POST() func(c *gin.Context) {
 				"meta": gin.H{
 					"payload": u,
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -94,10 +90,8 @@ func POST() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": 0,
+					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -113,7 +107,7 @@ func PUT() func(c *gin.Context) {
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, u)
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("UPDATE users SET first_name = $1, last_name = $2, email = $3, street_address = $4, postcode = $5, city = $6, country = $7, updated_at = $8"+query+";", u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.UpdatedAt)
 			tx.Commit()
@@ -125,7 +119,6 @@ func PUT() func(c *gin.Context) {
 					"query":   c.Request.URL.Query(),
 					"payload": u,
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -136,7 +129,6 @@ func PUT() func(c *gin.Context) {
 					"query":   c.Request.URL.Query(),
 					"payload": u,
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -147,18 +139,18 @@ func PUT() func(c *gin.Context) {
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		userRows, err := database.Db.Query("SELECT id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, paypal_email FROM users" + query + ";")
+		userRows, err := database.Postgres.Query("SELECT id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, FROM users" + query + ";")
 		defer userRows.Close()
 		if err == nil {
 			u := &user{}
 			for userRows.Next() {
-				userRows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Email, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.PaypalEmail)
+				userRows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Email, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt)
 			}
-			tx, _ := database.Db.Begin()
+			tx, _ := database.Postgres.Begin()
 			_, err = tx.Exec("DELETE FROM users" + query + ";")
 			tx.Commit()
-			txn, _ := database.Db.Begin()
-			txn.Exec("INSERT INTO deleted_users (id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, paypal_email, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", u.ID, u.Username, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.UpdatedAt, u.PaypalEmail, time.Now())
+			txn, _ := database.Postgres.Begin()
+			txn.Exec("INSERT INTO deleted_users (id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", u.ID, u.Username, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.UpdatedAt, time.Now())
 			txn.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -167,7 +159,6 @@ func DELETE() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -177,7 +168,6 @@ func DELETE() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}

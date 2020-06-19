@@ -14,21 +14,24 @@ func Start() *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/api/v1/slides", slides.GET())
-	r.POST("/api/v1/slides", slides.POST())
-	r.PUT("/api/v1/slides", slides.PUT())
-	r.DELETE("/api/v1/slides", slides.DELETE())
+	r.POST("/api/v1/slide", slides.POST())
+	r.PUT("/api/v1/slide", slides.PUT())
+	r.DELETE("/api/v1/slide", slides.DELETE())
 	r.GET("/api/v1/slides/categories", slides.CategoriesGET())
-	r.POST("/api/v1/slides/categories", slides.CategoryPOST())
-	r.PUT("/api/v1/slides/categories", slides.CategoryPUT())
-	r.DELETE("/api/v1/slides/categories", slides.CategoryDELETE())
+	r.POST("/api/v1/slides/category", slides.CategoryPOST())
+	r.PUT("/api/v1/slides/category", slides.CategoryPUT())
+	r.DELETE("/api/v1/slides/category", slides.CategoryDELETE())
 
-	r.GET("/api/v1/users", user.GET())
-	r.POST("/api/v1/users", user.POST())
-	r.PUT("/api/v1/users", user.PUT())
-	r.DELETE("/api/v1/users", user.DELETE())
+	r.GET("/api/v1/user", user.GET())
+	r.POST("/api/v1/user", user.POST())
+	r.PUT("/api/v1/user", user.PUT())
+	r.DELETE("/api/v1/user", user.DELETE())
 
-	r.GET("/api/v1/session/cart", session.CartGET())
-	r.POST("/api/v1/session/cart", session.CartPOST())
+	r.GET("/api/v1/login", session.Login())
+	r.GET("/api/v1/session", session.GET())
+	r.GET("/api/v1/cart", session.CartGET())
+	r.POST("/api/v1/cart", session.CartPOST())
+	r.DELETE("/api/v1/cart", session.CartDELETE())
 
 	return r
 }

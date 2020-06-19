@@ -15,7 +15,7 @@ type slide struct {
 	ID            uuid.UUID  `json:"id"`
 	Title         string     `json:"title"`
 	ImagePath     string     `json:"image_path"`
-	OriginDate    time.Time  `json:"origin_date,omitempty"`
+	PublishDate   time.Time  `json:"publish_date,omitempty"`
 	Description   string     `json:"description"`
 	Price         float64    `json:"price"`
 	Stock         int        `json:"stock"`
@@ -33,14 +33,14 @@ type slide struct {
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		slideRows, err := database.Db.Query("SELECT id, title, image_path, origin_date, description, price, stock, category_id, subcategory_id, created_at, updated_at FROM slides" + query + ";")
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id, created_at, updated_at FROM slides" + query + ";")
 		defer slideRows.Close()
 		if err == nil {
 			slides := []*slide{}
 			for slideRows.Next() {
 				s := &slide{}
-				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.OriginDate, &s.Description, &s.Price, &s.Stock, &s.Category, &s.Subcategory, &s.CreatedAt, &s.UpdatedAt)
-				commentRows, _ := database.Db.Query("SELECT id, username, slide_id, rating, publish_date, content FROM comments WHERE slide_id='" + s.ID.String() + "';")
+				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.PublishDate, &s.Description, &s.Price, &s.Stock, &s.Category, &s.Subcategory, &s.CreatedAt, &s.UpdatedAt)
+				commentRows, _ := database.Postgres.Query("SELECT id, username, slide_id, rating, publish_date, content FROM comments WHERE slide_id='" + s.ID.String() + "';")
 				defer commentRows.Close()
 				for commentRows.Next() {
 					c := &comment{}
@@ -54,12 +54,12 @@ func GET() func(c *gin.Context) {
 					}
 					s.AverageRating = math.Round(total/0.01) * 0.01 / float64(len(s.Comments))
 				}
-				categoryRow, _ := database.Db.Query("SELECT title FROM categories WHERE id='" + s.Category + "';")
+				categoryRow, _ := database.Postgres.Query("SELECT title FROM categories WHERE id='" + s.Category + "';")
 				defer categoryRow.Close()
 				for categoryRow.Next() {
 					categoryRow.Scan(&s.Category)
 				}
-				subCategoryRow, _ := database.Db.Query("SELECT title FROM categories WHERE id='" + s.Subcategory + "';")
+				subCategoryRow, _ := database.Postgres.Query("SELECT title FROM categories WHERE id='" + s.Subcategory + "';")
 				defer subCategoryRow.Close()
 				for subCategoryRow.Next() {
 					subCategoryRow.Scan(&s.Subcategory)
@@ -82,10 +82,8 @@ func GET() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": 0,
+					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -101,9 +99,9 @@ func POST() func(c *gin.Context) {
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, s)
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO slides (id, title, image_path, origin_date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", s.ID, s.Title, s.ImagePath, s.OriginDate, s.Description, s.Price, s.Stock, s.Category, s.Subcategory, s.SalesPrice, s.OnSale, s.CreatedAt, s.UpdatedAt)
+			tx.Exec("INSERT INTO slides (id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", s.ID, s.Title, s.ImagePath, s.PublishDate, s.Description, s.Price, s.Stock, s.Category, s.Subcategory, s.SalesPrice, s.OnSale, s.CreatedAt, s.UpdatedAt)
 			tx.Commit()
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -112,7 +110,6 @@ func POST() func(c *gin.Context) {
 				"meta": gin.H{
 					"payload": s,
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -122,7 +119,6 @@ func POST() func(c *gin.Context) {
 				"meta": gin.H{
 					"payload": s,
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -138,9 +134,9 @@ func PUT() func(c *gin.Context) {
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, s)
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE slides SET title = $1, image_path = $2, origin_date = $3, description = $4, price = $5, stock = $6, category_id = $7, subcategory_id = $8, sales_price = $9, on_sale = $10, updated_at = $11"+query+";", s.Title, s.ImagePath, s.OriginDate, s.Description, s.Price, s.Stock, s.Category, s.Subcategory, s.SalesPrice, s.OnSale, s.UpdatedAt)
+			tx.Exec("UPDATE slides SET title = $1, image_path = $2, publish_date = $3, description = $4, price = $5, stock = $6, category_id = $7, subcategory_id = $8, sales_price = $9, on_sale = $10, updated_at = $11"+query+";", s.Title, s.ImagePath, s.PublishDate, s.Description, s.Price, s.Stock, s.Category, s.Subcategory, s.SalesPrice, s.OnSale, s.UpdatedAt)
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -150,7 +146,6 @@ func PUT() func(c *gin.Context) {
 					"query":   c.Request.URL.Query(),
 					"payload": s,
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -161,7 +156,6 @@ func PUT() func(c *gin.Context) {
 					"query":   c.Request.URL.Query(),
 					"payload": s,
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -172,7 +166,7 @@ func PUT() func(c *gin.Context) {
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("DELETE FROM slides" + query + ";")
 			tx.Commit()
@@ -183,7 +177,6 @@ func DELETE() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -193,7 +186,6 @@ func DELETE() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}

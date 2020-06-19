@@ -1,24 +1,31 @@
 package database
 
 import (
+	"context"
 	"database/sql"
-	"log"
 	"net/url"
 	"strings"
 
+	"github.com/go-redis/redis"
 	_ "github.com/lib/pq" // Postgres driver
 )
 
-// Db is a SQL database pointer
-var Db = connect()
+// Postgres is a SQL database pointer, Redis is a Redis client pointer
+var Postgres, Redis = connect()
 
-func connect() *sql.DB {
+// Context for Redis
+var Context = context.Background()
+
+func connect() (*sql.DB, *redis.Client) {
 	db, _ := sql.Open("postgres", "postgres://postgres:postgres@127.0.0.1:5432/sas?sslmode=disable")
 	err := db.Ping()
 	if err != nil {
-		log.Fatal("Can't connect to database.")
+		panic(err)
 	}
-	return db
+	return db, redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+	})
 }
 
 // StandardizeQuery from HTTP to SQL

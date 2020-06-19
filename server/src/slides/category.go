@@ -22,7 +22,7 @@ func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		log.Println(uuid.New())
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		categoryRows, err := database.Db.Query("SELECT id, title, is_subcategory, parent_category FROM categories" + query + ";")
+		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category FROM categories" + query + ";")
 		defer categoryRows.Close()
 		if err == nil {
 			categories := []*category{}
@@ -35,7 +35,7 @@ func CategoriesGET() func(c *gin.Context) {
 				} else {
 					col = "category_id"
 				}
-				slideRowsCount, _ := database.Db.Query("SELECT COUNT(*) FROM slides WHERE " + col + " = '" + cg.ID.String() + "';")
+				slideRowsCount, _ := database.Postgres.Query("SELECT COUNT(*) FROM slides WHERE " + col + " = '" + cg.ID.String() + "';")
 				defer slideRowsCount.Close()
 				for slideRowsCount.Next() {
 					slideRowsCount.Scan(&cg.SlidesCount)
@@ -47,8 +47,8 @@ func CategoriesGET() func(c *gin.Context) {
 				"message":    "OK",
 				"error":      nil,
 				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": len(categories),
+					"query":        c.Request.URL.Query(),
+					"result_count": len(categories),
 				},
 				"data": categories,
 			})
@@ -58,10 +58,8 @@ func CategoriesGET() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": 0,
+					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -76,7 +74,7 @@ func CategoryPOST() func(c *gin.Context) {
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, c)
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("INSERT INTO categories (id, title, is_subcategory, parent_category) VALUES ($1, $2, $3, $4);", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategory)
 			tx.Commit()
@@ -87,7 +85,6 @@ func CategoryPOST() func(c *gin.Context) {
 				"meta": gin.H{
 					"payload": cg,
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -95,10 +92,8 @@ func CategoryPOST() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": 0,
+					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -112,7 +107,7 @@ func CategoryPUT() func(c *gin.Context) {
 		cg := &category{}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, cg)
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("UPDATE categories SET id = $1, title = $2, is_subcategory = $3, parent_category = $4"+query+";", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategory)
 			tx.Commit()
@@ -124,7 +119,6 @@ func CategoryPUT() func(c *gin.Context) {
 					"query":   c.Request.URL.Query(),
 					"payload": cg,
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -135,7 +129,6 @@ func CategoryPUT() func(c *gin.Context) {
 					"query":   c.Request.URL.Query(),
 					"payload": cg,
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}
@@ -146,7 +139,7 @@ func CategoryPUT() func(c *gin.Context) {
 func CategoryDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		tx, err := database.Db.Begin()
+		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("DELETE FROM categories" + query + ";")
 			tx.Commit()
@@ -157,7 +150,6 @@ func CategoryDELETE() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -167,7 +159,6 @@ func CategoryDELETE() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": nil,
 			})
 			log.Println(err)
 		}

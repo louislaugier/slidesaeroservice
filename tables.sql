@@ -2,7 +2,7 @@ CREATE TABLE slides(
 	id VARCHAR NOT NULL PRIMARY KEY,
 	title VARCHAR,
 	image_path VARCHAR UNIQUE,
-	origin_date TIMESTAMP,
+	publish_date TIMESTAMP,
 	description VARCHAR,
 	price FLOAT NOT NULL,
 	stock INTEGER DEFAULT 1,
@@ -46,14 +46,15 @@ CREATE TABLE users(
 	first_name VARCHAR NOT NULL,
 	last_name VARCHAR NOT NULL,
 	email VARCHAR UNIQUE NOT NULL,
+	password VARCHAR NOT NULL,
 	street_address VARCHAR NOT NULL,
 	post_code VARCHAR NOT NULL,
 	city VARCHAR NOT NULL,
 	country VARCHAR NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP,
-	paypal_email VARCHAR UNIQUE,
-	is_admin BOOLEAN DEFAULT FALSE
+	is_admin BOOLEAN DEFAULT FALSE,
+	email_verified BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE deleted_users(
@@ -68,7 +69,6 @@ CREATE TABLE deleted_users(
 	country VARCHAR NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP,
-	paypal_email VARCHAR UNIQUE,
 	deleted_at TIMESTAMP NOT NULL
 );
 
