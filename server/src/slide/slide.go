@@ -12,57 +12,47 @@ import (
 )
 
 type slide struct {
-	ID            uuid.UUID  `json:"id"`
-	Title         string     `json:"title"`
-	ImagePath     string     `json:"image_path"`
-	PublishDate   time.Time  `json:"publish_date,omitempty"`
-	Description   string     `json:"description"`
-	Price         float64    `json:"price"`
-	Stock         int        `json:"stock"`
-	Category      string     `json:"category"`
-	Subcategory   string     `json:"subcategory"`
-	Comments      []*comment `json:"comments,omitempty"`
-	AverageRating float64    `json:"average_rating,omitempty"`
-	SalesPrice    float64    `json:"sales_price,omitempty"`
-	OnSale        bool       `json:"on_sale"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+	ID            uuid.UUID `json:"id"`
+	Title         string    `json:"title"`
+	ImagePath     string    `json:"image_path"`
+	PublishDate   time.Time `json:"publish_date,omitempty"`
+	Description   string    `json:"description"`
+	Price         float64   `json:"price"`
+	Stock         int       `json:"stock"`
+	Category      string    `json:"category"`
+	Subcategory   string    `json:"subcategory"`
+	AverageRating float64   `json:"average_rating,omitempty"`
+	SalesPrice    float64   `json:"sales_price,omitempty"`
+	OnSale        bool      `json:"on_sale"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // GET slides or a slide
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id, created_at, updated_at FROM slides" + query + ";")
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + ";")
 		defer slideRows.Close()
 		if err == nil {
 			slides := []*slide{}
 			for slideRows.Next() {
 				s := &slide{}
-				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.PublishDate, &s.Description, &s.Price, &s.Stock, &s.Category, &s.Subcategory, &s.CreatedAt, &s.UpdatedAt)
-				commentRows, _ := database.Postgres.Query("SELECT id, username, slide_id, rating, publish_date, content FROM comments WHERE slide_id='" + s.ID.String() + "';")
+				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.PublishDate, &s.Description, &s.Price, &s.Stock, &s.Category, &s.Subcategory, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
+				commentRows, _ := database.Postgres.Query("SELECT rating WHERE slide_id='" + s.ID.String() + "';")
 				defer commentRows.Close()
+				ratings := []float64{}
 				for commentRows.Next() {
-					c := &comment{}
-					commentRows.Scan(&c.ID, &c.Username, &c.SlideID, &c.Rating, &c.PublishDate, &c.Content)
-					s.Comments = append(s.Comments, c)
+					rating := 0.00
+					commentRows.Scan(rating)
+					ratings = append(ratings, rating)
 				}
-				if s.Comments != nil {
+				if ratings != nil {
 					total := 0.0
-					for _, v := range s.Comments {
-						total += v.Rating
+					for _, v := range ratings {
+						total += v
 					}
-					s.AverageRating = math.Round(total/0.01) * 0.01 / float64(len(s.Comments))
-				}
-				categoryRow, _ := database.Postgres.Query("SELECT title FROM categories WHERE id='" + s.Category + "';")
-				defer categoryRow.Close()
-				for categoryRow.Next() {
-					categoryRow.Scan(&s.Category)
-				}
-				subCategoryRow, _ := database.Postgres.Query("SELECT title FROM categories WHERE id='" + s.Subcategory + "';")
-				defer subCategoryRow.Close()
-				for subCategoryRow.Next() {
-					subCategoryRow.Scan(&s.Subcategory)
+					s.AverageRating = math.Round(total/0.01) * 0.01 / float64(len(ratings))
 				}
 				slides = append(slides, s)
 			}
@@ -96,6 +86,7 @@ func POST() func(c *gin.Context) {
 		s := &slide{
 			ID:        uuid.New(),
 			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, s)

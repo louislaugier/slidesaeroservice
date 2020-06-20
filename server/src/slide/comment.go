@@ -8,7 +8,7 @@ import (
 
 type comment struct {
 	ID          uuid.UUID `json:"id"`
-	Username    string    `json:"username"`
+	Author      string    `json:"author"`
 	SlideID     uuid.UUID `json:"slide_id"`
 	Rating      float64   `json:"rating"`
 	PublishDate time.Time `json:"publish_date"`

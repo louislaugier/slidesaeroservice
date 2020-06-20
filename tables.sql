@@ -23,7 +23,7 @@ CREATE TABLE categories(
 
 CREATE TABLE comments(
 	id VARCHAR NOT NULL PRIMARY KEY,
-	username VARCHAR NOT NULL,
+	author VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
 	publish_date TIMESTAMP NOT NULL,
@@ -32,7 +32,6 @@ CREATE TABLE comments(
 
 CREATE TABLE deleted_comments(
 	id VARCHAR NOT NULL PRIMARY KEY,
-	username VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
 	publish_date TIMESTAMP NOT NULL,
@@ -42,7 +41,6 @@ CREATE TABLE deleted_comments(
 
 CREATE TABLE users(
 	id VARCHAR NOT NULL PRIMARY KEY,
-	username VARCHAR UNIQUE NOT NULL,
 	first_name VARCHAR NOT NULL,
 	last_name VARCHAR NOT NULL,
 	email VARCHAR UNIQUE NOT NULL,
@@ -59,7 +57,6 @@ CREATE TABLE users(
 
 CREATE TABLE deleted_users(
 	id VARCHAR NOT NULL PRIMARY KEY,
-	username VARCHAR UNIQUE NOT NULL,
 	first_name VARCHAR NOT NULL,
 	last_name VARCHAR NOT NULL,
 	email VARCHAR UNIQUE NOT NULL,

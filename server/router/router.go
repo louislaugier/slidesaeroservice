@@ -10,7 +10,7 @@ import (
 
 // Start the router
 func Start() *gin.Engine {
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	r.GET("/api/v1/slides", slides.GET())
@@ -22,10 +22,12 @@ func Start() *gin.Engine {
 	r.PUT("/api/v1/slides/category", slides.CategoryPUT())
 	r.DELETE("/api/v1/slides/category", slides.CategoryDELETE())
 
-	r.GET("/api/v1/user", user.GET())
+	r.GET("/api/v1/users", user.GET())
 	r.POST("/api/v1/user", user.POST())
 	r.PUT("/api/v1/user", user.PUT())
 	r.DELETE("/api/v1/user", user.DELETE())
+	r.DELETE("/api/v1/user/activate-account", user.Activate())
+	r.DELETE("/api/v1/user/reset-password", user.PasswordReset())
 
 	r.GET("/api/v1/login", session.Login())
 	r.GET("/api/v1/session", session.GET())

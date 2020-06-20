@@ -5,23 +5,21 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/louislaugier/sas/server/database"
 )
 
 // CartGET from Redis
 func CartGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		key := c.Request.URL.Query()["user"][0]
-		if key != "" {
-			key = c.Request.URL.Query()["ip"][0]
-		}
-		items, err := database.Redis.LRange(database.Context, key, 0, -1).Result()
+		items, err := database.Redis.LRange(database.Context, c.Request.URL.Query()["key"][0], 0, -1).Result()
 		if err == nil {
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
 				"message":    "OK",
 				"error":      nil,
 				"meta": gin.H{
+					"query":        c.Request.URL.Query(),
 					"result_count": len(items),
 				},
 				"data": items,
@@ -32,6 +30,7 @@ func CartGET() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
+					"query":        c.Request.URL.Query(),
 					"result_count": len(items),
 				},
 				"data": items,
@@ -44,9 +43,10 @@ func CartGET() func(c *gin.Context) {
 // CartPOST to Redis
 func CartPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		key := c.Request.URL.Query()["user"][0]
-		if key != "" {
-			key = c.Request.URL.Query()["ip"][0]
+		userID := c.Request.URL.Query()["key"][0]
+		key := userID
+		if userID == "guest" {
+			key = uuid.New().String()
 		}
 		_, err := database.Redis.LPush(database.Context, key, c.Request.URL.Query()["slide"][0]).Result()
 		if err == nil {
@@ -57,6 +57,7 @@ func CartPOST() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
+				"data": key,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -76,7 +77,7 @@ func CartPOST() func(c *gin.Context) {
 func CartDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		quantity, _ := strconv.ParseInt(c.Request.URL.Query()["count"][0], 10, 64)
-		_, err := database.Redis.LRem(database.Context, c.Request.URL.Query()["user"][0], quantity, c.Request.URL.Query()["slide"][0]).Result()
+		_, err := database.Redis.LRem(database.Context, c.Request.URL.Query()["key"][0], quantity, c.Request.URL.Query()["slide"][0]).Result()
 		if err == nil {
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

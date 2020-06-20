@@ -12,10 +12,10 @@ import (
 
 type user struct {
 	ID            uuid.UUID `json:"id"`
-	Username      string    `json:"username"`
 	FirstName     string    `json:"first_name"`
 	LastName      string    `json:"last_name"`
 	Email         string    `json:"email"`
+	PasswordHash  string    `json:"password_hash"`
 	StreetAddress string    `json:"street_address"`
 	PostCode      string    `json:"postcode"`
 	City          string    `json:"city"`
@@ -23,19 +23,20 @@ type user struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at,omitempty"`
 	IsAdmin       bool      `json:"is_admin"`
+	EmailVerified bool      `json:"email_verified"`
 }
 
 // GET users or a user
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		userRows, err := database.Postgres.Query("SELECT id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, is_admin FROM users" + query + ";")
+		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, is_admin, email_verified FROM users" + query + ";")
 		defer userRows.Close()
 		if err == nil {
 			users := []*user{}
 			for userRows.Next() {
 				u := &user{}
-				userRows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Email, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.IsAdmin)
+				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.PasswordHash, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.IsAdmin, &u.EmailVerified)
 				users = append(users, u)
 			}
 			c.JSON(200, &gin.H{
@@ -68,13 +69,14 @@ func POST() func(c *gin.Context) {
 		u := &user{
 			ID:        uuid.New(),
 			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 			IsAdmin:   false,
 		}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, u)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO users (id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", u.ID, u.Username, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.IsAdmin)
+			tx.Exec("INSERT INTO users (id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", u.ID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.IsAdmin)
 			tx.Commit()
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -101,23 +103,34 @@ func POST() func(c *gin.Context) {
 // PUT user
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		col := c.Request.URL.Query()["col"][0]
+		val := c.Request.URL.Query()["val"][0]
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		u := &user{
-			UpdatedAt: time.Now(),
-		}
-		payload, _ := c.GetRawData()
-		json.Unmarshal(payload, u)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE users SET first_name = $1, last_name = $2, email = $3, street_address = $4, postcode = $5, city = $6, country = $7, updated_at = $8"+query+";", u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.UpdatedAt)
-			tx.Commit()
+			msg := "OK"
+			if col == "password_hash" {
+				op := c.Request.URL.Query()["old_pwd"][0]
+				userRow, _ := database.Postgres.Query("SELECT password_hash FROM users" + query + ";")
+				defer userRow.Close()
+				p := ""
+				for userRow.Next() {
+					userRow.Scan(p)
+				}
+				if op == p {
+					tx.Exec("UPDATE users SET password_hash = $1, updated_at = $2"+query+";", val, time.Now())
+				} else {
+					msg = "Incorrect password"
+				}
+			} else {
+				tx.Exec("UPDATE users SET "+col+" = $1, updated_at = $2"+query+";", val, time.Now())
+			}
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
-				"message":    "OK",
+				"message":    msg,
 				"error":      nil,
 				"meta": gin.H{
-					"query":   c.Request.URL.Query(),
-					"payload": u,
+					"query": c.Request.URL.Query(),
 				},
 			})
 		} else {
@@ -126,8 +139,7 @@ func PUT() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query":   c.Request.URL.Query(),
-					"payload": u,
+					"query": c.Request.URL.Query(),
 				},
 			})
 			log.Println(err)
@@ -139,18 +151,18 @@ func PUT() func(c *gin.Context) {
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		userRows, err := database.Postgres.Query("SELECT id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, FROM users" + query + ";")
+		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, FROM users" + query + ";")
 		defer userRows.Close()
 		if err == nil {
 			u := &user{}
 			for userRows.Next() {
-				userRows.Scan(&u.ID, &u.Username, &u.FirstName, &u.LastName, &u.Email, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt)
+				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.PasswordHash, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt)
 			}
 			tx, _ := database.Postgres.Begin()
 			_, err = tx.Exec("DELETE FROM users" + query + ";")
 			tx.Commit()
 			txn, _ := database.Postgres.Begin()
-			txn.Exec("INSERT INTO deleted_users (id, username, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", u.ID, u.Username, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.UpdatedAt, time.Now())
+			txn.Exec("INSERT INTO deleted_users (id, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);", u.ID, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.UpdatedAt, time.Now())
 			txn.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -171,5 +183,17 @@ func DELETE() func(c *gin.Context) {
 			})
 			log.Println(err)
 		}
+	}
+}
+
+// Activate account
+func Activate() func(c *gin.Context) {
+	return func(c *gin.Context) {
+	}
+}
+
+// PasswordReset for a user
+func PasswordReset() func(c *gin.Context) {
+	return func(c *gin.Context) {
 	}
 }

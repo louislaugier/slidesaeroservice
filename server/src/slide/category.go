@@ -20,7 +20,6 @@ type category struct {
 // CategoriesGET for slides
 func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		log.Println(uuid.New())
 		query := database.StandardizeQuery(c.Request.URL.Query())
 		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category FROM categories" + query + ";")
 		defer categoryRows.Close()

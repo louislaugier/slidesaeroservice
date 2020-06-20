@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +21,7 @@ func GET() func(c *gin.Context) {
 				"message":    "OK",
 				"error":      nil,
 				"meta": gin.H{
-					"query": gin.H{},
+					"query": c.Request.URL.Query(),
 				},
 				"data": ID,
 			})
@@ -32,7 +31,7 @@ func GET() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query": gin.H{},
+					"query": c.Request.URL.Query(),
 				},
 			})
 			log.Println(err)
@@ -40,35 +39,37 @@ func GET() func(c *gin.Context) {
 	}
 }
 
-// Login with email or username
+// Login for 15 days & transfer guest cart to user cart
 func Login() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		log.Println(c.Request.URL.Query()["password"][0])
-		l := "username"
-		if strings.Contains(c.Request.URL.Query()["user"][0], "@") {
-			l = "email"
-		}
 		p := md5.Sum([]byte(c.Request.URL.Query()["password"][0]))
 		h := hex.EncodeToString(p[:])
-		userRow, err := database.Postgres.Query("SELECT id FROM users WHERE " + l + " = '" + c.Request.URL.Query()["user"][0] + "' AND password = '" + h + "';")
+		userRow, err := database.Postgres.Query("SELECT id, email_confirmed FROM users WHERE email = '" + c.Request.URL.Query()["user"][0] + "' AND password = '" + h + "';")
 		if err == nil {
 			defer userRow.Close()
 			ID := ""
+			ec := false
 			for userRow.Next() {
-				userRow.Scan(&ID)
+				userRow.Scan(&ID, &ec)
 			}
 			token := ""
-			if ID != "" {
+			if ID != "" && ec {
 				token = uuid.New().String()
 				d, _ := time.ParseDuration("15d")
 				database.Redis.Set(database.Context, token, ID, d)
+				if c.Request.URL.Query()["cart"][0] != "none" {
+					items, _ := database.Redis.LRange(database.Context, c.Request.URL.Query()["cart"][0], 0, -1).Result()
+					for _, v := range items {
+						database.Redis.LPush(database.Context, ID, v)
+					}
+				}
 			}
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
 				"message":    "OK",
 				"error":      nil,
 				"meta": gin.H{
-					"query": gin.H{},
+					"query": c.Request.URL.Query(),
 				},
 				"data": token,
 			})
@@ -78,7 +79,7 @@ func Login() func(c *gin.Context) {
 				"message":    "Internal Server Error",
 				"error":      err.Error(),
 				"meta": gin.H{
-					"query": gin.H{},
+					"query": c.Request.URL.Query(),
 				},
 			})
 			log.Println(err)
