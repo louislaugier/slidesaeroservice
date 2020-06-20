@@ -15,6 +15,7 @@ type slide struct {
 	ID            uuid.UUID `json:"id"`
 	Title         string    `json:"title"`
 	ImagePath     string    `json:"image_path"`
+	IsKodak       bool      `json:"is_kodak"`
 	PublishDate   time.Time `json:"publish_date,omitempty"`
 	Description   string    `json:"description"`
 	Price         float64   `json:"price"`

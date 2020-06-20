@@ -2,6 +2,7 @@ CREATE TABLE slides(
 	id VARCHAR NOT NULL PRIMARY KEY,
 	title VARCHAR,
 	image_path VARCHAR UNIQUE,
+	is_kodak BOOLEAN DEFAULT TRUE,
 	publish_date TIMESTAMP,
 	description VARCHAR,
 	price FLOAT NOT NULL,
