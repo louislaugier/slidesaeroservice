@@ -4,3 +4,4 @@ node_modules
 auction
 contact
 search
+sendgrid.env
