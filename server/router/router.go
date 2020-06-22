@@ -26,8 +26,8 @@ func Start() *gin.Engine {
 	r.POST("/api/v1/user", user.POST())
 	r.PUT("/api/v1/user", user.PUT())
 	r.DELETE("/api/v1/user", user.DELETE())
-	r.DELETE("/api/v1/user/activate-account", user.Activate())
-	r.DELETE("/api/v1/user/reset-password", user.PasswordReset())
+	r.GET("/api/v1/user/activate", user.Activation())
+	r.GET("/api/v1/user/reset-password", user.PasswordReset())
 
 	r.GET("/api/v1/login", session.Login())
 	r.GET("/api/v1/session", session.GET())

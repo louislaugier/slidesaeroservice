@@ -8,6 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/louislaugier/sas/server/database"
+
+	sendgrid "github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type user struct {
@@ -78,6 +81,10 @@ func POST() func(c *gin.Context) {
 		if err == nil {
 			tx.Exec("INSERT INTO users (id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", u.ID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.IsAdmin)
 			tx.Commit()
+			activationToken := uuid.New()
+			d, _ := time.ParseDuration("1h")
+			database.Redis.Set(database.Context, u.Email, activationToken, d)
+			sendgrid.NewSendClient("SENDGRID_API_KEY").Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Account activation", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "test", SignupEmailHTML(activationToken.String(), u.FirstName, u.LastName)))
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
 				"message":    "Created",
@@ -183,17 +190,5 @@ func DELETE() func(c *gin.Context) {
 			})
 			log.Println(err)
 		}
-	}
-}
-
-// Activate account
-func Activate() func(c *gin.Context) {
-	return func(c *gin.Context) {
-	}
-}
-
-// PasswordReset for a user
-func PasswordReset() func(c *gin.Context) {
-	return func(c *gin.Context) {
 	}
 }
