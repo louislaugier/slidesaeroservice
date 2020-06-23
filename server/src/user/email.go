@@ -89,7 +89,7 @@ func PasswordReset() func(c *gin.Context) {
 				t := uuid.New()
 				database.Redis.Set(database.Context, email, t, d)
 				token = t.String()
-				sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")).Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Account activation", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "test", SignupEmailHTML(token, u.FirstName, u.LastName)))
+				sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")).Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Reset your password", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "test", SignupEmailHTML(token, u.FirstName, u.LastName)))
 
 			}
 			c.JSON(200, &gin.H{
