@@ -74,3 +74,8 @@ CREATE TABLE deleted_users(
 CREATE TABLE orders(
 
 );
+
+CREATE TABLE auctions(
+
+);
+
