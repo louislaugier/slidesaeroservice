@@ -22,10 +22,15 @@ func connect() (*sql.DB, *redis.Client) {
 	if err != nil {
 		panic(err)
 	}
-	return db, redis.NewClient(&redis.Options{
+	rd := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 	})
+	_, err = rd.Ping(Context).Result()
+	if err != nil {
+		panic(err)
+	}
+	return db, rd
 }
 
 // StandardizeQuery from HTTP to SQL

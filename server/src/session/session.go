@@ -39,8 +39,8 @@ func GET() func(c *gin.Context) {
 	}
 }
 
-// Login for 15 days & transfer guest cart to user cart
-func Login() func(c *gin.Context) {
+// TokenGET for 30-day cookie & transfer guest cart to user cart
+func TokenGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		p := md5.Sum([]byte(c.Request.URL.Query()["password"][0]))
 		h := hex.EncodeToString(p[:])
@@ -55,7 +55,7 @@ func Login() func(c *gin.Context) {
 			token := ""
 			if ID != "" && ec {
 				token = uuid.New().String()
-				d, _ := time.ParseDuration("15d")
+				d, _ := time.ParseDuration("30d")
 				database.Redis.Set(database.Context, token, ID, d)
 				if c.Request.URL.Query()["cart"][0] != "none" {
 					items, _ := database.Redis.LRange(database.Context, c.Request.URL.Query()["cart"][0], 0, -1).Result()

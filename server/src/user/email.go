@@ -2,6 +2,7 @@ package user
 
 import (
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/louislaugier/sas/server/database"
@@ -27,15 +28,16 @@ func Activation() func(c *gin.Context) {
 			if !verified {
 				token, err := database.Redis.Get(database.Context, c.Request.URL.Query()["email"][0]).Result()
 				if err != nil {
-					msg = "Token expired"
+					msg = "Expired token"
 				}
 				if token == c.Request.URL.Query()["token"][0] {
+					log.Println("token ok")
 					tx, _ := database.Postgres.Begin()
-					tx.Exec("UPDATE users SET email_verified = $1 WHERE email = '"+email+";", true)
+					tx.Exec("UPDATE users SET email_verified = $1, updated_at = $2 WHERE email = '"+email+"';", true, time.Now())
 					tx.Commit()
 				}
 			} else {
-				msg = "Already verified"
+				msg = "User already verified"
 			}
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

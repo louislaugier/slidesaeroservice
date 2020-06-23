@@ -3,6 +3,7 @@ package user
 import (
 	"encoding/json"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -84,7 +85,7 @@ func POST() func(c *gin.Context) {
 			activationToken := uuid.New()
 			d, _ := time.ParseDuration("1h")
 			database.Redis.Set(database.Context, u.Email, activationToken, d)
-			sendgrid.NewSendClient("SENDGRID_API_KEY").Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Account activation", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "test", SignupEmailHTML(activationToken.String(), u.FirstName, u.LastName)))
+			sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")).Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Account activation", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "test", SignupEmailHTML(activationToken.String(), u.FirstName, u.LastName)))
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
 				"message":    "Created",
