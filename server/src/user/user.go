@@ -119,14 +119,15 @@ func PUT() func(c *gin.Context) {
 			msg := "OK"
 			if col == "password_hash" {
 				op := c.Request.URL.Query()["old_pwd"][0]
-				userRow, _ := database.Postgres.Query("SELECT password_hash FROM users" + query + ";")
+				userRow, _ := database.Postgres.Query("SELECT email, password_hash FROM users" + query + ";")
 				defer userRow.Close()
-				p := ""
+				u := user{}
 				for userRow.Next() {
-					userRow.Scan(p)
+					userRow.Scan(&u.Email, &u.PasswordHash)
 				}
-				if op == p {
+				if op == u.PasswordHash {
 					tx.Exec("UPDATE users SET password_hash = $1, updated_at = $2"+query+";", val, time.Now())
+					database.Redis.Del(database.Context, u.Email)
 				} else {
 					msg = "Incorrect password"
 				}
