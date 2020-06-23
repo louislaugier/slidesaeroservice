@@ -1,12 +1,7 @@
 version: "3.8"
 services:
-  redis:
-    image: redis:6.0.4-alpine
-    ports:
-      - "6379:6379"
-    sysctls:
-      net.core.somaxconn: '511'
-    restart: always
+  app:
+    build: server
   postgres:
     image: postgres:13-alpine
     ports:
@@ -17,5 +12,12 @@ services:
     environment:
       POSTGRES_DB: sas
       POSTGRES_PASSWORD: postgres
+  redis:
+    image: redis:6.0.4-alpine
+    ports:
+      - "6379:6379"
+    sysctls:
+      net.core.somaxconn: '511'
+    restart: always
 volumes:
   db:
