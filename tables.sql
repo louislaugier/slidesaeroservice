@@ -19,12 +19,12 @@ CREATE TABLE categories(
 	id VARCHAR NOT NULL PRIMARY KEY,
 	title VARCHAR UNIQUE NOT NULL,
 	is_subcategory BOOLEAN DEFAULT FALSE,
-	parent_category VARCHAR
+	parent_category_id VARCHAR
 );
 
 CREATE TABLE comments(
 	id VARCHAR NOT NULL PRIMARY KEY,
-	author VARCHAR NOT NULL,
+	author_id VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
 	publish_date TIMESTAMP NOT NULL,
@@ -33,6 +33,7 @@ CREATE TABLE comments(
 
 CREATE TABLE deleted_comments(
 	id VARCHAR NOT NULL PRIMARY KEY,
+	author_id VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
 	publish_date TIMESTAMP NOT NULL,

@@ -1,4 +1,4 @@
-package slides
+package slide
 
 import (
 	"encoding/json"
@@ -10,24 +10,24 @@ import (
 )
 
 type category struct {
-	ID             uuid.UUID `json:"id"`
-	Title          string    `json:"title"`
-	IsSubcategory  bool      `json:"is_subcategory"`
-	ParentCategory string    `json:"parent_category,omitempty"`
-	SlidesCount    int       `json:"slides_count"`
+	ID               uuid.UUID `json:"id"`
+	Title            string    `json:"title"`
+	IsSubcategory    bool      `json:"is_subcategory"`
+	ParentCategoryID string    `json:"parent_category_id,omitempty"`
+	SlidesCount      int       `json:"slides_count"`
 }
 
 // CategoriesGET for slides
 func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category FROM categories" + query + ";")
+		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + query + ";")
 		defer categoryRows.Close()
 		if err == nil {
 			categories := []*category{}
 			for categoryRows.Next() {
 				cg := &category{}
-				categoryRows.Scan(&cg.ID, &cg.Title, &cg.IsSubcategory, &cg.ParentCategory)
+				categoryRows.Scan(&cg.ID, &cg.Title, &cg.IsSubcategory, &cg.ParentCategoryID)
 				col := ""
 				if cg.IsSubcategory {
 					col = "subcategory_id"
@@ -75,7 +75,7 @@ func CategoryPOST() func(c *gin.Context) {
 		json.Unmarshal(payload, c)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO categories (id, title, is_subcategory, parent_category) VALUES ($1, $2, $3, $4);", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategory)
+			tx.Exec("INSERT INTO categories (id, title, is_subcategory, parent_category_id) VALUES ($1, $2, $3, $4);", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategoryID)
 			tx.Commit()
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -108,7 +108,7 @@ func CategoryPUT() func(c *gin.Context) {
 		json.Unmarshal(payload, cg)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE categories SET id = $1, title = $2, is_subcategory = $3, parent_category = $4"+query+";", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategory)
+			tx.Exec("UPDATE categories SET id = $1, title = $2, is_subcategory = $3, parent_category_id = $4"+query+";", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategoryID)
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

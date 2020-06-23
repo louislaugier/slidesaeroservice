@@ -1,4 +1,4 @@
-package slides
+package slide
 
 import (
 	"time"
@@ -8,7 +8,7 @@ import (
 
 type comment struct {
 	ID          uuid.UUID `json:"id"`
-	Author      string    `json:"author"`
+	AuthorID    uuid.UUID `json:"author_id"`
 	SlideID     uuid.UUID `json:"slide_id"`
 	Rating      float64   `json:"rating"`
 	PublishDate time.Time `json:"publish_date"`

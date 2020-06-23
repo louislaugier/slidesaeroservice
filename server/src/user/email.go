@@ -62,7 +62,7 @@ func Activation() func(c *gin.Context) {
 	}
 }
 
-// PasswordReset for a user
+// PasswordReset by sending token by email
 func PasswordReset() func(c *gin.Context) {
 	return func(c *gin.Context) {
 
