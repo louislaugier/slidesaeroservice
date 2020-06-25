@@ -11,7 +11,8 @@ import (
 	"github.com/louislaugier/sas/server/database"
 )
 
-type slide struct {
+// Slide export
+type Slide struct {
 	ID            uuid.UUID `json:"id"`
 	Title         string    `json:"title"`
 	ImagePath     string    `json:"image_path"`
@@ -20,8 +21,8 @@ type slide struct {
 	Description   string    `json:"description"`
 	Price         float64   `json:"price"`
 	Stock         int       `json:"stock"`
-	CategoryID    string    `json:"category_id"`
-	SubcategoryID string    `json:"subcategory_id"`
+	CategoryID    uuid.UUID `json:"category_id"`
+	SubcategoryID uuid.UUID `json:"subcategory_id"`
 	AverageRating float64   `json:"average_rating,omitempty"`
 	SalesPrice    float64   `json:"sales_price,omitempty"`
 	OnSale        bool      `json:"on_sale"`
@@ -33,14 +34,14 @@ type slide struct {
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + ";")
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + ";")
 		defer slideRows.Close()
 		if err == nil {
-			slides := []*slide{}
+			slides := []*Slide{}
 			for slideRows.Next() {
-				s := &slide{}
+				s := &Slide{}
 				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.PublishDate, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
-				commentRows, _ := database.Postgres.Query("SELECT rating WHERE slide_id='" + s.ID.String() + "';")
+				commentRows, _ := database.Postgres.Query("SELECT rating FROM comments WHERE slide_id = '" + s.ID.String() + "';")
 				defer commentRows.Close()
 				ratings := []float64{}
 				for commentRows.Next() {
@@ -84,7 +85,7 @@ func GET() func(c *gin.Context) {
 // POST slide
 func POST() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		s := &slide{
+		s := &Slide{
 			ID:        uuid.New(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -121,7 +122,7 @@ func POST() func(c *gin.Context) {
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		s := &slide{
+		s := &Slide{
 			UpdatedAt: time.Now(),
 		}
 		payload, _ := c.GetRawData()

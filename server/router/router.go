@@ -3,8 +3,10 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // Postgres driver
+	"github.com/louislaugier/sas/server/src/contact"
+	"github.com/louislaugier/sas/server/src/search"
 	"github.com/louislaugier/sas/server/src/session"
-	slide "github.com/louislaugier/sas/server/src/slide"
+	"github.com/louislaugier/sas/server/src/slide"
 	"github.com/louislaugier/sas/server/src/user"
 )
 
@@ -27,13 +29,18 @@ func Start() *gin.Engine {
 	r.PUT("/api/v1/user", user.PUT())
 	r.DELETE("/api/v1/user", user.DELETE())
 	r.PUT("/api/v1/user/activate", user.Activation())
-	r.POST("/api/v1/user/reset-password", user.PasswordReset())
+	r.GET("/api/v1/user/reset-password", user.PasswordTokenGET())
+	r.DELETE("/api/v1/user/emails-unsubscribe", user.ContactDELETE())
 
 	r.GET("/api/v1/login", session.TokenGET())
 	r.GET("/api/v1/session", session.GET())
 	r.GET("/api/v1/cart", session.CartGET())
 	r.POST("/api/v1/cart", session.CartPOST())
 	r.DELETE("/api/v1/cart", session.CartDELETE())
+
+	r.POST("/api/v1/contact", contact.POST())
+
+	r.GET("/api/v1/search", search.GET())
 
 	return r
 }

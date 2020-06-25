@@ -1,5 +1,5 @@
 CREATE TABLE slides(
-	id VARCHAR NOT NULL PRIMARY KEY,
+	id VARCHAR PRIMARY KEY,
 	title VARCHAR,
 	image_path VARCHAR UNIQUE,
 	is_kodak BOOLEAN DEFAULT TRUE,
@@ -16,14 +16,14 @@ CREATE TABLE slides(
 );
 
 CREATE TABLE categories(
-	id VARCHAR NOT NULL PRIMARY KEY,
+	id VARCHAR PRIMARY KEY,
 	title VARCHAR UNIQUE NOT NULL,
 	is_subcategory BOOLEAN DEFAULT FALSE,
 	parent_category_id VARCHAR
 );
 
 CREATE TABLE comments(
-	id VARCHAR NOT NULL PRIMARY KEY,
+	id VARCHAR PRIMARY KEY,
 	author_id VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
@@ -32,7 +32,7 @@ CREATE TABLE comments(
 );
 
 CREATE TABLE deleted_comments(
-	id VARCHAR NOT NULL PRIMARY KEY,
+	id VARCHAR PRIMARY KEY,
 	author_id VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
@@ -42,7 +42,7 @@ CREATE TABLE deleted_comments(
 );
 
 CREATE TABLE users(
-	id VARCHAR NOT NULL PRIMARY KEY,
+	id VARCHAR PRIMARY KEY,
 	first_name VARCHAR NOT NULL,
 	last_name VARCHAR NOT NULL,
 	email VARCHAR UNIQUE NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE users(
 );
 
 CREATE TABLE deleted_users(
-	id VARCHAR NOT NULL PRIMARY KEY,
+	id VARCHAR PRIMARY KEY,
 	first_name VARCHAR NOT NULL,
 	last_name VARCHAR NOT NULL,
 	email VARCHAR UNIQUE NOT NULL,
@@ -69,6 +69,11 @@ CREATE TABLE deleted_users(
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP,
 	deleted_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE contacts(
+	email VARCHAR PRIMARY KEY,
+	emails_enabled BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE orders(

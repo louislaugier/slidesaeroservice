@@ -9,11 +9,12 @@ import (
 	"github.com/louislaugier/sas/server/database"
 )
 
-type category struct {
+// Category export
+type Category struct {
 	ID               uuid.UUID `json:"id"`
 	Title            string    `json:"title"`
 	IsSubcategory    bool      `json:"is_subcategory"`
-	ParentCategoryID string    `json:"parent_category_id,omitempty"`
+	ParentCategoryID uuid.UUID `json:"parent_category_id,omitempty"`
 	SlidesCount      int       `json:"slides_count"`
 }
 
@@ -24,9 +25,9 @@ func CategoriesGET() func(c *gin.Context) {
 		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + query + ";")
 		defer categoryRows.Close()
 		if err == nil {
-			categories := []*category{}
+			categories := []*Category{}
 			for categoryRows.Next() {
-				cg := &category{}
+				cg := &Category{}
 				categoryRows.Scan(&cg.ID, &cg.Title, &cg.IsSubcategory, &cg.ParentCategoryID)
 				col := ""
 				if cg.IsSubcategory {
@@ -68,7 +69,7 @@ func CategoriesGET() func(c *gin.Context) {
 // CategoryPOST for slides
 func CategoryPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		cg := &category{
+		cg := &Category{
 			ID: uuid.New(),
 		}
 		payload, _ := c.GetRawData()
@@ -103,7 +104,7 @@ func CategoryPOST() func(c *gin.Context) {
 func CategoryPUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		cg := &category{}
+		cg := &Category{}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, cg)
 		tx, err := database.Postgres.Begin()

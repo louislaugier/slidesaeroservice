@@ -6,7 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type comment struct {
+// Comment export
+type Comment struct {
 	ID          uuid.UUID `json:"id"`
 	AuthorID    uuid.UUID `json:"author_id"`
 	SlideID     uuid.UUID `json:"slide_id"`

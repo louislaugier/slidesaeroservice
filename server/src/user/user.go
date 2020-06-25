@@ -28,6 +28,7 @@ type user struct {
 	UpdatedAt     time.Time `json:"updated_at,omitempty"`
 	IsAdmin       bool      `json:"is_admin"`
 	EmailVerified bool      `json:"email_verified"`
+	EmailsEnabled bool      `json:"emails_enabled"`
 }
 
 // GET users or a user
@@ -85,7 +86,7 @@ func POST() func(c *gin.Context) {
 			activationToken := uuid.New()
 			d, _ := time.ParseDuration("1h")
 			database.Redis.Set(database.Context, u.Email, activationToken, d)
-			sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")).Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Account activation", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "test", SignupEmailHTML(activationToken.String(), u.FirstName, u.LastName)))
+			sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")).Send(mail.NewSingleEmail(mail.NewEmail("SlidesAeroService", "contact@slidesaeroservice.com"), "Account activation", mail.NewEmail(u.FirstName+" "+u.LastName, u.Email), "Hi "+u.FirstName+u.LastName+", Thanks for signing up and welcome to SlidesAeroService. Please click on the link below to activate your account: Verify e-mail address", EmailHTML("verify&token=", activationToken.String(), u.FirstName, u.LastName, "Thanks for signing up and welcome to SlidesAeroService. Please click on the link below to activate your account:", "Verify e-mail address")))
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
 				"message":    "Created",
@@ -118,6 +119,7 @@ func PUT() func(c *gin.Context) {
 		if err == nil {
 			msg := "OK"
 			if col == "password_hash" {
+				// if c.Request.URL.Query()["val"][0] == redis.get(email)
 				op := c.Request.URL.Query()["old_pwd"][0]
 				userRow, _ := database.Postgres.Query("SELECT email, password_hash FROM users" + query + ";")
 				defer userRow.Close()
