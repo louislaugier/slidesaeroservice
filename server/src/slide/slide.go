@@ -37,7 +37,7 @@ func GET() func(c *gin.Context) {
 		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + ";")
 		defer slideRows.Close()
 		if err == nil {
-			slides := []Slide{}
+			slides := []*Slide{}
 			for slideRows.Next() {
 				s := &Slide{}
 				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.Date, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
@@ -46,17 +46,17 @@ func GET() func(c *gin.Context) {
 				ratings := []float64{}
 				for commentRows.Next() {
 					rating := 0.00
-					commentRows.Scan(rating)
+					commentRows.Scan(&rating)
 					ratings = append(ratings, rating)
 				}
-				if ratings != nil {
+				if len(ratings) > 0 {
 					total := 0.0
 					for _, v := range ratings {
 						total += v
 					}
 					s.AverageRating = math.Round(total/0.01) * 0.01 / float64(len(ratings))
 				}
-				slides = append(slides, *s)
+				slides = append(slides, s)
 			}
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
