@@ -27,7 +27,7 @@ CREATE TABLE comments(
 	author_id VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
-	publish_date TIMESTAMP NOT NULL,
+	date TIMESTAMP NOT NULL,
 	content VARCHAR NOT NULL
 );
 
@@ -36,7 +36,7 @@ CREATE TABLE deleted_comments(
 	author_id VARCHAR NOT NULL,
 	slide_id  INTEGER NOT NULL,
 	rating FLOAT,
-	publish_date TIMESTAMP NOT NULL,
+	date TIMESTAMP NOT NULL,
 	content VARCHAR NOT NULL,
 	deleted_at TIMESTAMP NOT NULL
 );

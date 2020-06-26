@@ -17,7 +17,7 @@ type Slide struct {
 	Title         string    `json:"title"`
 	ImagePath     string    `json:"image_path"`
 	IsKodak       bool      `json:"is_kodak"`
-	PublishDate   time.Time `json:"publish_date,omitempty"`
+	Date          time.Time `json:"date,omitempty"`
 	Description   string    `json:"description"`
 	Price         float64   `json:"price"`
 	Stock         int       `json:"stock"`
@@ -34,13 +34,13 @@ type Slide struct {
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + ";")
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + ";")
 		defer slideRows.Close()
 		if err == nil {
-			slides := []*Slide{}
+			slides := []Slide{}
 			for slideRows.Next() {
 				s := &Slide{}
-				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.PublishDate, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
+				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.Date, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
 				commentRows, _ := database.Postgres.Query("SELECT rating FROM comments WHERE slide_id = '" + s.ID.String() + "';")
 				defer commentRows.Close()
 				ratings := []float64{}
@@ -56,7 +56,7 @@ func GET() func(c *gin.Context) {
 					}
 					s.AverageRating = math.Round(total/0.01) * 0.01 / float64(len(ratings))
 				}
-				slides = append(slides, s)
+				slides = append(slides, *s)
 			}
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -94,7 +94,7 @@ func POST() func(c *gin.Context) {
 		json.Unmarshal(payload, s)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO slides (id, title, image_path, publish_date, description, price, stock, category_id, subcategory_id_id, sales_price, on_sale, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", s.ID, s.Title, s.ImagePath, s.PublishDate, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.CreatedAt, s.UpdatedAt)
+			tx.Exec("INSERT INTO slides (id, title, image_path, date, description, price, stock, category_id, subcategory_id_id, sales_price, on_sale, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", s.ID, s.Title, s.ImagePath, s.Date, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.CreatedAt, s.UpdatedAt)
 			tx.Commit()
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -129,7 +129,7 @@ func PUT() func(c *gin.Context) {
 		json.Unmarshal(payload, s)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE slides SET title = $1, image_path = $2, publish_date = $3, description = $4, price = $5, stock = $6, category_id = $7, subcategory_id_id = $8, sales_price = $9, on_sale = $10, updated_at = $11"+query+";", s.Title, s.ImagePath, s.PublishDate, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.UpdatedAt)
+			tx.Exec("UPDATE slides SET title = $1, image_path = $2, date = $3, description = $4, price = $5, stock = $6, category_id = $7, subcategory_id_id = $8, sales_price = $9, on_sale = $10, updated_at = $11"+query+";", s.Title, s.ImagePath, s.Date, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.UpdatedAt)
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
