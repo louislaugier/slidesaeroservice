@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // Postgres driver
 	"github.com/louislaugier/sas/server/src/contact"
-	"github.com/louislaugier/sas/server/src/search"
 	"github.com/louislaugier/sas/server/src/session"
 	"github.com/louislaugier/sas/server/src/slide"
 	"github.com/louislaugier/sas/server/src/user"
@@ -39,8 +38,6 @@ func Start() *gin.Engine {
 	r.DELETE("/api/v1/cart", session.CartDELETE())
 
 	r.POST("/api/v1/contact", contact.POST())
-
-	r.GET("/api/v1/search", search.GET())
 
 	return r
 }
