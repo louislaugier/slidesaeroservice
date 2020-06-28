@@ -2,4 +2,14 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: 'Roboto';
+}
+
+.Slides-Container::after{
+  content: "";
+  flex: auto;
+}
+
+.Mui-disabled{
+  opacity: 0.25 !important;
 }
