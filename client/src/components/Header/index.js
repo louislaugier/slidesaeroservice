@@ -17,9 +17,10 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import InboxIcon from '@material-ui/icons/MoveToInbox'
-import MailIcon from '@material-ui/icons/Mail'
+import HomeIcon from '@material-ui/icons/Home'
 import Divider from '@material-ui/core/Divider'
+import AuctionIcon from '@material-ui/icons/PanTool'
+import ContactIcon from '@material-ui/icons/Email'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,21 +89,30 @@ export default function Header() {
       onKeyDown={toggleMenu(anchor, false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        <ListItem button key={"home"}>
+          <ListItemIcon><HomeIcon/></ListItemIcon>
+          <ListItemText primary={"Home"} />
+        </ListItem>
+        <ListItem button key={"cart"}>
+          <ListItemIcon><CartIcon/></ListItemIcon>
+          <ListItemText primary={"Cart"} />
+        </ListItem>
+        <ListItem button key={"auctions"}>
+          <ListItemIcon><AuctionIcon/></ListItemIcon>
+          <ListItemText primary={"Auctions"} />
+        </ListItem>
+        <ListItem button key={"my-account"}>
+          <ListItemIcon><UserIcon/></ListItemIcon>
+          <ListItemText primary={"My Account"} />
+        </ListItem>
+        <ListItem button key={"contact"}>
+          <ListItemIcon><ContactIcon/></ListItemIcon>
+          <ListItemText primary={"Contact"} />
+        </ListItem>
       </List>
       <Divider />
       <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        
       </List>
     </div>
   )

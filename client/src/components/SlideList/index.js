@@ -33,13 +33,13 @@ const IOSSwitch = withStyles((theme) => ({
       transform: 'translateX(16px)',
       color: theme.palette.common.white,
       '& + $track': {
-        backgroundColor: '#52d869',
+        backgroundColor: '#3f51b5',
         opacity: 1,
         border: 'none'
       }
     },
     '&$focusVisible $thumb': {
-      color: '#52d869',
+      color: '#3f51b5',
       border: '6px solid #fff'
     }
   },
