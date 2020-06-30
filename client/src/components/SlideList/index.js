@@ -13,15 +13,87 @@ import Paper from "@material-ui/core/Paper"
 import Tabs from "@material-ui/core/Tabs"
 import Tab from "@material-ui/core/Tab"
 import ArrowDropUpIcon from "@material-ui/icons/ArrowRightAlt"
+import InfiniteScroll from "react-infinite-scroll-component"
+import Switch from '@material-ui/core/Switch'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Radio from '@material-ui/core/Radio'
+import RadioGroup from '@material-ui/core/RadioGroup'
+import FormControl from '@material-ui/core/FormControl'
+
+const IOSSwitch = withStyles((theme) => ({
+  root: {
+    width: 42,
+    height: 26,
+    padding: 0,
+    margin: theme.spacing(1)
+  },
+  switchBase: {
+    padding: 1,
+    '&$checked': {
+      transform: 'translateX(16px)',
+      color: theme.palette.common.white,
+      '& + $track': {
+        backgroundColor: '#52d869',
+        opacity: 1,
+        border: 'none'
+      }
+    },
+    '&$focusVisible $thumb': {
+      color: '#52d869',
+      border: '6px solid #fff'
+    }
+  },
+  thumb: {
+    width: 24,
+    height: 24
+  },
+  track: {
+    borderRadius: 26 / 2,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[50],
+    opacity: 1,
+    transition: theme.transitions.create(['background-color', 'border'])
+  },
+  checked: {},
+  focusVisible: {}
+}))(({ classes, ...props }) => {
+  return (
+    <Switch
+      focusVisibleClassName={classes.focusVisible}
+      disableRipple
+      classes={{
+        root: classes.root,
+        switchBase: classes.switchBase,
+        thumb: classes.thumb,
+        track: classes.track,
+        checked: classes.checked
+      }}
+      {...props}
+    />
+  )
+})
 
 const styles = (theme) => ({
   container: {
     flexGrow: 1
   },
+  otherTools: {
+    marginBottom: 50,
+    "align-items": "center"
+  },
   toolbar: {
-    margin: "50px 0 100px 0",
+    marginTop: 30,
     width: "100%",
     display: "flex"
+  },
+  radioGroup: {
+    marginRight: 50,
+    "flex-direction": "row"
+  },
+  radio: {
+    '&&:hover': {
+      backgroundColor: '#F5F5F5'
+    }
   },
   toolbarFilter: {
     display: "inline-block"
@@ -30,8 +102,7 @@ const styles = (theme) => ({
     marginLeft: 5
   },
   paper: {
-    display: "inline-block",
-    width: "52.5vw"
+    width: "100%"
   },
   control: {
     padding: theme.spacing(2)
@@ -56,24 +127,38 @@ const styles = (theme) => ({
   },
   arrowDown: {
     transform: "rotate(90deg)"
-  },
+  }
 })
 
 function SlideList(props) {
-  const { classes } = props
-  const [anchorElOrderby, setanchorElOrderby] = React.useState(null)
-  const [anchorElAscdesc, setanchorElAscdesc] = React.useState(null)
+  const [slideTypeState, setSlideTypeState] = React.useState('all')
+  const handleSlideTypeChange = (event) => {
+    setSlideTypeState(event.target.value)
+  }
+  const [auctionOnlyState, setAuctionOnlyState] = React.useState({
+    checked: false
+  })
+  const handleAuctionsOnlyChange = (event) => {
+    setAuctionOnlyState({...auctionOnlyState, [event.target.name]: event.target.checked})
+  }
+  const [scrollState, setScrollState] = React.useState({
+    items: Array.from({length: 56}),
+    hasMore: true
+  })
+  const {classes} = props
+  const [orderByState, setOrderByState] = React.useState(null)
+  const [ascDescState, setAscDescState] = React.useState(null)
   const handleOrderbyOpen = (event) => {
-    setanchorElOrderby(event.currentTarget)
+    setOrderByState(event.currentTarget)
   }
   const handleOrderbyClose = () => {
-    setanchorElOrderby(null)
+    setOrderByState(null)
   }
   const handleAscdescOpen = (event) => {
-    setanchorElAscdesc(event.currentTarget)
+    setAscDescState(event.currentTarget)
   }
   const handleAscdescClose = () => {
-    setanchorElAscdesc(null)
+    setAscDescState(null)
   }
   const [value, setValue] = React.useState(0)
   const handleCategoryChange = (event, newValue) => {
@@ -100,16 +185,30 @@ function SlideList(props) {
                 scrollButtons="on"
               >
                 <Tab label="All" />
-                <Tab label="Boeing (354)" />
-                <Tab label="Airbus (266)" />
-                <Tab label="Lockheed (92)" />
-                <Tab label="Russian Types" />
-                <Tab label="French Types" />
-                <Tab label="English Types" />
-                <Tab label="English Types" />
-                <Tab label="English Types" />
+                <Tab label="Boeing (354)"/>
+                <Tab label="Airbus (266)"/>
+                <Tab label="Lockheed (92)"/>
+                <Tab label="Russian Types"/>
+                <Tab label="French Types"/>
+                <Tab label="English Types"/>
+                <Tab label="English Types"/>
+                <Tab label="English Types"/>
               </Tabs>
             </Paper>
+          </Grid>
+          <Grid
+            className={classes.otherTools}
+            container
+            justify="flex-end"
+            item
+          >
+            <FormControl component="fieldset">
+              <RadioGroup className={classes.radioGroup} value={slideTypeState} onChange={handleSlideTypeChange}>
+                <FormControlLabel value="all" control={<Radio className={classes.radio}/>} label="All"/>
+                <FormControlLabel value="kodak" control={<Radio className={classes.radio}/>} label="Kodak"/>
+                <FormControlLabel value="other" control={<Radio className={classes.radio}/>} label="Other"/>
+              </RadioGroup>
+            </FormControl>
             <div className={classes.toolbarFilter}>
               Sort by
               <IconButton
@@ -120,13 +219,13 @@ function SlideList(props) {
                 aria-haspopup="true"
                 onClick={handleOrderbyOpen}
               >
-                <FilterIcon />
+                <FilterIcon/>
               </IconButton>
               <Menu
                 id="orderby"
-                anchorEl={anchorElOrderby}
+                anchorEl={orderByState}
                 keepMounted
-                open={Boolean(anchorElOrderby)}
+                open={Boolean(orderByState)}
                 onClose={handleOrderbyClose}
               >
                 <MenuItem onClick={handleOrderbyClose}>Publish date</MenuItem>
@@ -145,41 +244,56 @@ function SlideList(props) {
               </IconButton>
               <Menu
                 id="asc-desc"
-                anchorEl={anchorElAscdesc}
+                anchorEl={ascDescState}
                 keepMounted
-                open={Boolean(anchorElAscdesc)}
+                open={Boolean(ascDescState)}
                 onClose={handleAscdescClose}
               >
                 <MenuItem onClick={handleAscdescClose}>
-                  <ArrowDropUpIcon className={classes.arrowUp} />
+                  <ArrowDropUpIcon className={classes.arrowUp}/>
                 </MenuItem>
                 <MenuItem onClick={handleAscdescClose}>
-                  <ArrowDropUpIcon className={classes.arrowDown} />
+                  <ArrowDropUpIcon className={classes.arrowDown}/>
                 </MenuItem>
               </Menu>
             </div>
+            <FormControlLabel
+              control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
+            />
+            <p>Auctions only</p>
           </Grid>
         </Grid>
-
-          <Grid
-            className="Slides-Container"
-            container
-            justify="space-between"
-            spacing={3}
+        <InfiniteScroll
+          dataLength={scrollState.items.length}
+          next={() => {
+            if (scrollState.items.length >= 500) {
+              setScrollState({
+                items: scrollState.items,
+                hasMore: false
+              })
+              return
+            }
+            setTimeout(() => {
+              setScrollState({
+                items: scrollState.items.concat(Array.from({length: 30})),
+                hasMore: scrollState.hasMore
+              })
+            }, 500)
+          }}
+          hasMore={scrollState.hasMore}
           >
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62].map((value) => (
-              <Grid key={value} item>
+            {scrollState.items.map((value, i) => (
+              <Grid key={i} item>
                 <Card className={classes.card}>
                   <CardContent>
                     <Typography color="textSecondary" gutterBottom>
-                      Title
+                      Slide {i}
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
             ))}
-          </Grid>
-        
+        </InfiniteScroll>
       </Grid>
     </Grid>
   )

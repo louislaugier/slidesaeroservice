@@ -13,21 +13,22 @@ import (
 
 // Slide export
 type Slide struct {
-	ID            uuid.UUID `json:"id"`
-	Title         string    `json:"title"`
-	ImagePath     string    `json:"image_path"`
-	IsKodak       bool      `json:"is_kodak"`
-	Date          time.Time `json:"date,omitempty"`
-	Description   string    `json:"description"`
-	Price         float64   `json:"price"`
-	Stock         int       `json:"stock"`
-	CategoryID    uuid.UUID `json:"category_id"`
-	SubcategoryID uuid.UUID `json:"subcategory_id"`
-	AverageRating float64   `json:"average_rating,omitempty"`
-	SalesPrice    float64   `json:"sales_price,omitempty"`
-	OnSale        bool      `json:"on_sale"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID                      uuid.UUID `json:"id"`
+	Title                   string    `json:"title"`
+	ImagePath               string    `json:"image_path"`
+	IsKodak                 bool      `json:"is_kodak"`
+	AircraftImmatriculation string    `json:"aircraft_immatriculation"`
+	Date                    time.Time `json:"date,omitempty"`
+	Description             string    `json:"description"`
+	Price                   float64   `json:"price"`
+	Stock                   int       `json:"stock"`
+	CategoryID              uuid.UUID `json:"category_id"`
+	SubcategoryID           uuid.UUID `json:"subcategory_id"`
+	AverageRating           float64   `json:"average_rating,omitempty"`
+	SalesPrice              float64   `json:"sales_price,omitempty"`
+	OnSale                  bool      `json:"on_sale"`
+	CreatedAt               time.Time `json:"created_at"`
+	UpdatedAt               time.Time `json:"updated_at"`
 }
 
 // GET slides or a slide

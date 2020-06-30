@@ -2,14 +2,47 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: 'Roboto';
+  font-family: 'Roboto'
 }
 
 .Slides-Container::after{
   content: "";
-  flex: auto;
+  flex: auto
 }
 
 .Mui-disabled{
-  opacity: 0.25 !important;
+  opacity: 0.25 !important
+}
+
+.MuiGrid-item{
+  padding: 12px
+}
+
+.infinite-scroll-component {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: calc(100% + 24px);
+  margin: -12px
+}
+
+.MuiSwitch-root{
+  overflow: unset !important;
+  margin: 0 -5px 0 50px !important
+}
+
+.MuiRadio-colorSecondary.Mui-checked{
+  color: #3f51b5 !important
+}
+
+.MuiSwitch-colorSecondary.Mui-checked + .MuiSwitch-track{
+  background: #3f51b5 !important
+}
+
+.MuiButton-textSecondary{
+  color: white !important
+}
+
+.MuiSnackbar-root>div{
+  background: #3f51b5 !important
 }
