@@ -19,8 +19,17 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import HomeIcon from '@material-ui/icons/Home'
 import Divider from '@material-ui/core/Divider'
-import AuctionIcon from '@material-ui/icons/PanTool'
+import AuctionIcon from '@material-ui/icons/Gavel'
 import ContactIcon from '@material-ui/icons/Email'
+import ExpandLess from '@material-ui/icons/ExpandLess'
+import ExpandMore from '@material-ui/icons/ExpandMore'
+import Collapse from '@material-ui/core/Collapse'
+import HelpIcon from '@material-ui/icons/Help'
+import MoreIcon from '@material-ui/icons/MoreVert'
+import LoginIcon from '@material-ui/icons/ExitToApp'
+import SignupIcon from '@material-ui/icons/AssignmentInd'
+import Fade from '@material-ui/core/Fade'
+import ScrollTopIcon from '@material-ui/icons/KeyboardArrowUp'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,21 +66,41 @@ const useStyles = makeStyles((theme) => ({
   },
   list: {
     width: 250,
-  }
+  },
+  nested: {
+    paddingLeft: theme.spacing(6)
+  },
+  nested2: {
+    paddingLeft: theme.spacing(8)
+  },
+  nestedCateg: {
+    paddingLeft: 0
+  },
 }))
 
 export default function Header() {
   const [menuState, setMenuState] = React.useState({
     left: false
   })
-  const toggleMenu = (anchor, open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return
-    }
+  const toggleMenu = (anchor, open) => () => {
     setMenuState({ ...menuState, [anchor]: open })
+  }
+  const [myAccountNestOpen, setMyAccountNestOpen] = React.useState(false)
+  const handleMyAccountNestClick = () => {
+    setMyAccountNestOpen(!myAccountNestOpen)
+  }
+  const [categoriesNestOpen, setCategoriesNestOpen] = React.useState(false)
+  const handleCategoriesNestClick = () => {
+    setCategoriesNestOpen(!categoriesNestOpen)
+  }
+  const [subCategoriesNestOpen, setSubCategoriesNestOpen] = React.useState({
+    0: false,
+    1: false,
+    2: false, 
+    3: false
+  })
+  const handleSubCategoriesNestClick = (i) => () => {
+    setSubCategoriesNestOpen({...subCategoriesNestOpen, [i]: !subCategoriesNestOpen[i]})
   }
   const [anchorElProfile, setAnchorElProfile] = React.useState(null)
   const handleProfileClick = (event) => {
@@ -80,109 +109,224 @@ export default function Header() {
   const handleProfileClose = () => {
     setAnchorElProfile(null)
   }
+  const [anchorElMore, setAnchorElMore] = React.useState(null)
+  const handleMoreClick = (event) => {
+    setAnchorElMore(event.currentTarget)
+  }
+  const handleMoreClose = () => {
+    setAnchorElMore(null)
+  }
   const classes = useStyles()
   const list = (anchor) => (
     <div
       className={classes.list}
       role="presentation"
-      onClick={toggleMenu(anchor, false)}
-      onKeyDown={toggleMenu(anchor, false)}
     >
       <List>
         <ListItem button key={"home"}>
           <ListItemIcon><HomeIcon/></ListItemIcon>
-          <ListItemText primary={"Home"} />
-        </ListItem>
-        <ListItem button key={"cart"}>
-          <ListItemIcon><CartIcon/></ListItemIcon>
-          <ListItemText primary={"Cart"} />
+          <ListItemText primary={"Home"}/>
         </ListItem>
         <ListItem button key={"auctions"}>
           <ListItemIcon><AuctionIcon/></ListItemIcon>
-          <ListItemText primary={"Auctions"} />
+          <ListItemText primary={"Auctions"}/>
         </ListItem>
-        <ListItem button key={"my-account"}>
+        <ListItem button key={"cart"}>
+          <ListItemIcon><CartIcon/></ListItemIcon>
+          <ListItemText primary={"Cart"}/>
+        </ListItem>
+        <ListItem onClick={handleMyAccountNestClick} button key={"my-account"}>
           <ListItemIcon><UserIcon/></ListItemIcon>
-          <ListItemText primary={"My Account"} />
+          <ListItemText primary={"Account"}/>
+          {myAccountNestOpen ? <ExpandLess/> : <ExpandMore/>}
         </ListItem>
+        <Collapse in={myAccountNestOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItem button className={classes.nested}>
+              <ListItemIcon><LoginIcon/></ListItemIcon>
+              <ListItemText primary="Login"/>
+            </ListItem>
+            <ListItem button className={classes.nested}>
+              <ListItemIcon><SignupIcon/></ListItemIcon>
+              <ListItemText primary="Sign up"/>
+            </ListItem>
+          </List>
+        </Collapse>
         <ListItem button key={"contact"}>
           <ListItemIcon><ContactIcon/></ListItemIcon>
-          <ListItemText primary={"Contact"} />
+          <ListItemText primary={"Contact"}/>
         </ListItem>
       </List>
-      <Divider />
+      <Divider/>
       <List>
-        
+        <ListItem onClick={handleCategoriesNestClick} button key={"categories"}>
+          <ListItemText className="Menu-Categories" primary={"Categories"}/>
+          {categoriesNestOpen ? <ExpandLess/> : <ExpandMore/>}
+        </ListItem>
       </List>
+      <Divider/>
+      <Collapse in={categoriesNestOpen} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          <ListItem onClick={handleSubCategoriesNestClick(0)} button className={classes.nested}>
+            <ListItemText primary="Lorem ipsum"/>
+            {subCategoriesNestOpen[0] ? <ExpandLess/> : <ExpandMore/>}
+          </ListItem>
+          <Collapse in={subCategoriesNestOpen[0]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+              </List>
+          </Collapse>
+          <ListItem onClick={handleSubCategoriesNestClick(1)} button className={classes.nested}>
+            <ListItemText primary="Lorem ipsum"/>
+            {subCategoriesNestOpen[1] ? <ExpandLess/> : <ExpandMore/>}
+          </ListItem>
+          <Collapse in={subCategoriesNestOpen[1]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+              </List>
+          </Collapse>
+          <ListItem onClick={handleSubCategoriesNestClick(2)} button className={classes.nested}>
+            <ListItemText primary="Lorem ipsum"/>
+            {subCategoriesNestOpen[2] ? <ExpandLess/> : <ExpandMore/>}
+          </ListItem>
+          <Collapse in={subCategoriesNestOpen[2]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+              </List>
+          </Collapse>
+          <ListItem onClick={handleSubCategoriesNestClick(3)} button className={classes.nested}>
+            <ListItemText primary="Lorem ipsum"/>
+            {subCategoriesNestOpen[3] ? <ExpandLess/> : <ExpandMore/>}
+          </ListItem>
+          <Collapse in={subCategoriesNestOpen[3]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button className={classes.nested2}>
+                  <ListItemText primary="Subcategory"/>
+                </ListItem>
+              </List>
+          </Collapse>
+        </List>
+      </Collapse>
     </div>
   )
   return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar className={classes.flexbar}>
-          <div className={classes.homeTopLeft}>
-            <IconButton
-              onClick={toggleMenu("left", true)}
-              onKeyDown={toggleMenu("left", false)}
-              aria-label="cart"
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Button className={classes.siteTitle} color="inherit">
-              SlidesAeroService
-            </Button>
-          </div>
-          <Paper component="form" className={classes.searchBar}>
-            <InputBase
-              className={classes.input}
-              placeholder="Search for a slide, category or subcategory"
-              inputProps={{
-                "aria-label": "search for a slide, category or subcategory",
-              }}
+    <>
+      <div className={classes.root}>
+        <AppBar position="static">
+          <Toolbar className={classes.flexbar}>
+            <div className={classes.homeTopLeft}>
+              <IconButton
+                onClick={toggleMenu("left", !menuState["left"])}
+                onKeyDown={toggleMenu("left", false)}
+                aria-label="menu"
+                color="inherit"
+              >
+                <MenuIcon/>
+              </IconButton>
+              <Button className={classes.siteTitle} color="inherit">
+                SlidesAeroService
+              </Button>
+            </div>
+            <Paper component="form" className={classes.searchBar}>
+              <InputBase
+                className={classes.input}
+                placeholder="Search for a slide, category or subcategory"
+                inputProps={{
+                  "aria-label": "search for a slide, category or subcategory",
+                }}
             />
-            <IconButton
-              type="submit"
-              className={classes.iconButton}
-              aria-label="search"
-            >
-              <SearchIcon />
-            </IconButton>
-          </Paper>
-          <div>
-            <IconButton aria-label="cart" color="inherit">
-              <CartIcon />
-            </IconButton>
-            <IconButton
-              aria-controls="simple-menu"
-              aria-haspopup="true"
-              onClick={handleProfileClick}
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="account"
-            >
-              <UserIcon />
-            </IconButton>
-            <Menu
-              id="simple-menu"
-              anchorEl={anchorElProfile}
-              keepMounted
-              open={Boolean(anchorElProfile)}
-              onClose={handleProfileClose}
-            >
-              <MenuItem onClick={handleProfileClose}>Login</MenuItem>
-              <MenuItem onClick={handleProfileClose}>Sign up</MenuItem>
-            </Menu>
-          </div>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        anchor={"left"}
-        open={menuState["left"]}
-        onClose={toggleMenu("left", false)}
-      >
-        {list("left")}
-      </Drawer>
-    </div>
+              <IconButton
+                type="submit"
+                className={classes.iconButton}
+                aria-label="search"
+              >
+                <SearchIcon/>
+              </IconButton>
+            </Paper>
+            <div>
+              <IconButton aria-label="cart" color="inherit">
+                <CartIcon/>
+              </IconButton>
+              <IconButton
+                aria-controls="simple-menu"
+                aria-haspopup="true"
+                onClick={handleProfileClick}
+                color="inherit"
+                aria-label="account"
+              >
+                <MoreIcon/>
+              </IconButton>
+              <Menu
+                id="profile-menu"
+                anchorEl={anchorElProfile}
+                keepMounted
+                open={Boolean(anchorElProfile)}
+                onClose={handleProfileClose}
+                TransitionComponent={Fade}
+              >
+                <MenuItem onClick={handleProfileClose}>Login</MenuItem>
+                <MenuItem onClick={handleProfileClose}>Sign up</MenuItem>
+              </Menu>
+              <IconButton
+                aria-controls="more"
+                aria-haspopup="true"
+                onClick={handleMoreClick}
+                color="inherit"
+                aria-label="more"
+              >
+                <HelpIcon/>
+              </IconButton>
+              <Menu
+                id="more-menu"
+                anchorEl={anchorElMore}
+                keepMounted
+                open={Boolean(anchorElMore)}
+                onClose={handleMoreClose}
+                TransitionComponent={Fade}
+              >
+                <MenuItem onClick={handleMoreClose}>About</MenuItem>
+                <Divider/>
+                <MenuItem onClick={handleMoreClose}>Terms of use</MenuItem>
+                <MenuItem onClick={handleMoreClose}>Privacy policy</MenuItem>
+              </Menu>
+            </div>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          anchor={"left"}
+          open={menuState["left"]}
+          onClose={toggleMenu("left", false)}
+        >
+          {list("left")}
+        </Drawer>
+      </div>
+      
+      <div onClick={(e)=>{
+        e.preventDefault()
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }} className="Scroll-Top">
+        <IconButton
+          aria-label="scroll-top"
+        >
+          <ScrollTopIcon/>
+        </IconButton>
+      </div>
+      
+    </>
   )
 }

@@ -2,7 +2,28 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: 'Roboto'
+  font-family: 'Roboto';
+  padding-right: 0 !important;
+  overflow-y: scroll !important
+}
+
+.App>div:first-child{
+  z-index: 2;
+  position: fixed;
+  width: 100%
+}
+
+body>.MuiDrawer-root.MuiDrawer-modal{
+  z-index: 0 !important
+}
+
+.App>.MuiGrid-root{
+  position: relative;
+  top: 40px
+}
+
+.MuiDrawer-root.MuiDrawer-modal>.MuiPaper-root.MuiDrawer-paper.MuiDrawer-paperAnchorLeft{
+  z-index: 1
 }
 
 .Slides-Container::after{
@@ -41,4 +62,64 @@ body {
 
 .MuiSnackbar-root>div{
   background: #3f51b5 !important
+}
+
+.MuiDrawer-paper{
+  top: 65px !important;
+  height: calc(100vh - 65px) !important;
+  overflow-x: hidden
+}
+
+.Auctions-Only{
+  display: flex
+}
+
+.MuiDrawer-paper ul.MuiList-root>.MuiButtonBase-root.MuiListItem-root.MuiListItem-gutters.MuiListItem-button{
+  padding-left: 32px;
+  color:black;
+  left: 0
+}
+
+.Menu-Categories>span{
+  color: rgba(0, 0, 0, 0.66);
+  text-transform: uppercase;
+  font-size: 13px !important
+}
+
+.MuiList-root.MuiList-padding:nth-child(3){
+  padding: 0
+}
+
+.MuiList-root.MuiList-padding:nth-child(5)>div>div>div{
+  padding-left: 0
+}
+
+.MuiList-root.MuiList-padding:nth-child(3)>div:first-child>div:first-child{
+  flex: unset;
+  margin-right: 10px
+}
+
+.MuiList-root.MuiList-padding:nth-child(3)>div:first-child>svg{
+  color: rgba(0, 0, 0, 0.66)
+}
+
+.Scroll-Top{
+  bottom: 5vh;
+  right: 5vh;
+  background: #3f51b5;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1;
+  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12)
+}
+
+.Scroll-Top svg{
+  color: white;
+  font-size: 2rem
 }

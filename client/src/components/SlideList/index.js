@@ -257,10 +257,12 @@ function SlideList(props) {
                 </MenuItem>
               </Menu>
             </div>
-            <FormControlLabel
-              control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
-            />
-            <p>Auctions only</p>
+            <div className="Auctions-Only">
+              <FormControlLabel
+                control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
+              />
+              <p>Auctions only</p>
+            </div>
           </Grid>
         </Grid>
         <InfiniteScroll
