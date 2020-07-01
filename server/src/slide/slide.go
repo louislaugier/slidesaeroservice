@@ -13,22 +13,20 @@ import (
 
 // Slide export
 type Slide struct {
-	ID                      uuid.UUID `json:"id"`
-	Title                   string    `json:"title"`
-	ImagePath               string    `json:"image_path"`
-	IsKodak                 bool      `json:"is_kodak"`
-	AircraftImmatriculation string    `json:"aircraft_immatriculation,omitempty"`
-	Date                    time.Time `json:"date,omitempty"`
-	Description             string    `json:"description"`
-	Price                   float64   `json:"price"`
-	Stock                   int       `json:"stock"`
-	CategoryID              uuid.UUID `json:"category_id"`
-	SubcategoryID           uuid.UUID `json:"subcategory_id"`
-	AverageRating           float64   `json:"average_rating,omitempty"`
-	SalesPrice              float64   `json:"sales_price,omitempty"`
-	OnSale                  bool      `json:"on_sale"`
-	CreatedAt               time.Time `json:"created_at"`
-	UpdatedAt               time.Time `json:"updated_at"`
+	ID            uuid.UUID `json:"id"`
+	Title         string    `json:"title"`
+	ImagePath     string    `json:"image_path"`
+	IsKodak       bool      `json:"is_kodak"`
+	Description   string    `json:"description"`
+	Price         float64   `json:"price"`
+	Stock         int       `json:"stock"`
+	CategoryID    uuid.UUID `json:"category_id"`
+	SubcategoryID uuid.UUID `json:"subcategory_id"`
+	AverageRating float64   `json:"average_rating,omitempty"`
+	SalesPrice    float64   `json:"sales_price,omitempty"`
+	OnSale        bool      `json:"on_sale"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // GET slides or a slide
@@ -44,13 +42,13 @@ func GET() func(c *gin.Context) {
 				s = " WHERE title = '" + search[0] + "'"
 			}
 		}
-		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, is_kodak, aircraft_immatriculation, date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + s + ";")
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, is_kodak, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + s + ";")
 		defer slideRows.Close()
 		if err == nil {
 			slides := []*Slide{}
 			for slideRows.Next() {
 				s := &Slide{}
-				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.IsKodak, &s.AircraftImmatriculation, &s.Date, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
+				slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.IsKodak, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
 				commentRows, _ := database.Postgres.Query("SELECT rating FROM comments WHERE slide_id = '" + s.ID.String() + "';")
 				defer commentRows.Close()
 				ratings := []float64{}
@@ -78,11 +76,11 @@ func GET() func(c *gin.Context) {
 					if cg.IsSubcategory {
 						col = "subcategory_id"
 					}
-					slideRows, err = database.Postgres.Query("SELECT id, title, image_path, is_kodak, aircraft_immatriculation, date, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides WHERE " + col + "= '" + cg.ID.String() + "';")
+					slideRows, err = database.Postgres.Query("SELECT id, title, image_path, is_kodak, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides WHERE " + col + "= '" + cg.ID.String() + "';")
 					defer slideRows.Close()
 					for slideRows.Next() {
 						s := &Slide{}
-						slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.IsKodak, &s.AircraftImmatriculation, &s.Date, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
+						slideRows.Scan(&s.ID, &s.Title, &s.ImagePath, &s.IsKodak, &s.Description, &s.Price, &s.Stock, &s.CategoryID, &s.SubcategoryID, &s.SalesPrice, &s.OnSale, &s.CreatedAt, &s.UpdatedAt)
 						slides = append(slides, s)
 					}
 				}
@@ -123,7 +121,7 @@ func POST() func(c *gin.Context) {
 		json.Unmarshal(payload, s)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO slides (id, title, image_path, is_kodak,  aircraft_immatriculation, date, description, price, stock, category_id, subcategory_id_id, sales_price, on_sale, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);", s.ID, s.Title, s.ImagePath, s.IsKodak, &s.AircraftImmatriculation, s.Date, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.CreatedAt, s.UpdatedAt)
+			tx.Exec("INSERT INTO slides (id, title, image_path, origin_date, description, price, stock, category_id, subcategory_id_id, sales_price, on_sale, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);", s.ID, s.Title, s.ImagePath, s.IsKodak, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.CreatedAt, s.UpdatedAt)
 			tx.Commit()
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -158,7 +156,7 @@ func PUT() func(c *gin.Context) {
 		json.Unmarshal(payload, s)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE slides SET title = $1, image_path = $2, date = $3, description = $4, price = $5, stock = $6, category_id = $7, subcategory_id_id = $8, sales_price = $9, on_sale = $10, updated_at = $11, is_kodak = $12, aircraft_immatriculation = $13"+query+";", s.Title, s.ImagePath, s.Date, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.UpdatedAt, s.IsKodak, s.AircraftImmatriculation)
+			tx.Exec("UPDATE slides SET title = $1, image_path = $2, description = $3, price = $4, stock = $5, category_id = $6, subcategory_id_id = $7, sales_price = $8, on_sale = $9, updated_at = $10, is_kodak = $11"+query+";", s.Title, s.ImagePath, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.UpdatedAt, s.IsKodak)
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

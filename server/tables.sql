@@ -3,8 +3,6 @@ CREATE TABLE slides(
 	title VARCHAR,
 	image_path VARCHAR UNIQUE,
 	is_kodak BOOLEAN DEFAULT TRUE,
-	aircraft_immatriculation VARCHAR,
-	publish_date TIMESTAMP,
 	description VARCHAR,
 	price FLOAT NOT NULL,
 	stock INTEGER DEFAULT 1,
