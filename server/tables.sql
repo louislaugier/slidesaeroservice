@@ -72,6 +72,7 @@ CREATE TABLE deleted_users(
 
 CREATE TABLE contacts(
 	email VARCHAR PRIMARY KEY,
+	has_account BOOLEAN DEFAULT FALSE,
 	emails_enabled BOOLEAN DEFAULT TRUE
 );
 
