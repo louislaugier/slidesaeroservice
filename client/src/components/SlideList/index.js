@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useEffect, useState} from "react"
 import { withStyles } from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import Card from "@material-ui/core/Card"
@@ -14,11 +14,14 @@ import Tabs from "@material-ui/core/Tabs"
 import Tab from "@material-ui/core/Tab"
 import ArrowDropUpIcon from "@material-ui/icons/ArrowRightAlt"
 import InfiniteScroll from "react-infinite-scroll-component"
-import Switch from '@material-ui/core/Switch'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Radio from '@material-ui/core/Radio'
-import RadioGroup from '@material-ui/core/RadioGroup'
-import FormControl from '@material-ui/core/FormControl'
+import Switch from "@material-ui/core/Switch"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import Radio from "@material-ui/core/Radio"
+import RadioGroup from "@material-ui/core/RadioGroup"
+import FormControl from "@material-ui/core/FormControl"
+import axios from "axios"
+
+const base = "http://localhost:8080/api/v1"
 
 const IOSSwitch = withStyles((theme) => ({
   root: {
@@ -29,18 +32,18 @@ const IOSSwitch = withStyles((theme) => ({
   },
   switchBase: {
     padding: 1,
-    '&$checked': {
-      transform: 'translateX(16px)',
+    "&$checked": {
+      transform: "translateX(16px)",
       color: theme.palette.common.white,
-      '& + $track': {
-        backgroundColor: '#3f51b5',
+      "& + $track": {
+        backgroundColor: "#3f51b5",
         opacity: 1,
-        border: 'none'
+        border: "none"
       }
     },
-    '&$focusVisible $thumb': {
-      color: '#3f51b5',
-      border: '6px solid #fff'
+    "&$focusVisible $thumb": {
+      color: "#3f51b5",
+      border: "6px solid #fff"
     }
   },
   thumb: {
@@ -52,7 +55,7 @@ const IOSSwitch = withStyles((theme) => ({
     border: `1px solid ${theme.palette.grey[400]}`,
     backgroundColor: theme.palette.grey[50],
     opacity: 1,
-    transition: theme.transitions.create(['background-color', 'border'])
+    transition: theme.transitions.create(["background-color", "border"])
   },
   checked: {},
   focusVisible: {}
@@ -91,8 +94,8 @@ const styles = (theme) => ({
     "flex-direction": "row"
   },
   radio: {
-    '&&:hover': {
-      backgroundColor: '#F5F5F5'
+    "&&:hover": {
+      backgroundColor: "#F5F5F5"
     }
   },
   toolbarFilter: {
@@ -131,23 +134,36 @@ const styles = (theme) => ({
 })
 
 function SlideList(props) {
-  const [slideTypeState, setSlideTypeState] = React.useState('all')
+  const [scrollState, setScrollState] = useState({
+    items: Array.from({length: 0}),
+    hasMore: true,
+    part: 0
+  })
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios(base + "/slides?limit=56")
+      setScrollState({
+        items: result.data.data,
+        hasMore: true,
+        part: 1
+      })
+    }
+    fetchData()
+  }, [])
+  const [slideTypeState, setSlideTypeState] = useState("all")
   const handleSlideTypeChange = (event) => {
     setSlideTypeState(event.target.value)
   }
-  const [auctionOnlyState, setAuctionOnlyState] = React.useState({
+  const [auctionOnlyState, setAuctionOnlyState] = useState({
     checked: false
   })
   const handleAuctionsOnlyChange = (event) => {
     setAuctionOnlyState({...auctionOnlyState, [event.target.name]: event.target.checked})
   }
-  const [scrollState, setScrollState] = React.useState({
-    items: Array.from({length: 56}),
-    hasMore: true
-  })
+  
   const {classes} = props
-  const [orderByState, setOrderByState] = React.useState(null)
-  const [ascDescState, setAscDescState] = React.useState(null)
+  const [orderByState, setOrderByState] = useState(null)
+  const [ascDescState, setAscDescState] = useState(null)
   const handleOrderbyOpen = (event) => {
     setOrderByState(event.currentTarget)
   }
@@ -160,13 +176,13 @@ function SlideList(props) {
   const handleAscdescClose = () => {
     setAscDescState(null)
   }
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = useState(0)
   const handleCategoryChange = (event, newValue) => {
     setValue(newValue)
   }
   return (
     <Grid container justify="center" className={classes.container}>
-      <Grid item xs={8}>
+      <Grid item xs={12}>
         <Grid container justify="space-between">
           <Grid
             container
@@ -268,33 +284,54 @@ function SlideList(props) {
         <InfiniteScroll
           dataLength={scrollState.items.length}
           next={() => {
-            if (scrollState.items.length >= 500) {
+            if (scrollState.items.length >= 600) {
               setScrollState({
                 items: scrollState.items,
-                hasMore: false
+                hasMore: false,
+                part: scrollState.part
               })
               return
             }
             setTimeout(() => {
-              setScrollState({
-                items: scrollState.items.concat(Array.from({length: 30})),
-                hasMore: scrollState.hasMore
-              })
+              let result = []
+              const fetchData = async () => {
+                result = await axios(
+                  base + "/slides?limit=56&offset=" + (56 * scrollState.part).toString(),
+                )
+                setScrollState({
+                  items: scrollState.items.concat(result.data.data),
+                  hasMore: true,
+                  part: scrollState.part + 1
+                })
+              }
+              fetchData()
             }, 500)
           }}
           hasMore={scrollState.hasMore}
           >
-            {scrollState.items.map((value, i) => (
-              <Grid key={i} item>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                      Slide {i}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+            {
+              scrollState.items !== null ? scrollState.items.map((slide, i) => (
+                <Grid key={i} item>
+                  <Card style={{
+                          height: 190,
+                          width: 300
+                        }} className={classes.card}
+                  >
+                    <CardContent>
+                      <Typography color="textSecondary" gutterBottom>
+                        <span className={classes.slideTitle}>
+                          {slide.title}
+                        </span>
+                        <img style={{
+                          height: 152,
+                          width: 240
+                        }} src={slide.image_path} alt="Slide"/>
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )) : <></>
+            }
         </InfiniteScroll>
       </Grid>
     </Grid>

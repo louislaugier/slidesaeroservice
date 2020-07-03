@@ -79,13 +79,16 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function Header() {
-  const [scrollTopState, setScrollTopState] = React.useState(0)
+  const [scrollTopOpacity, setScrollTopOpacity] = React.useState(0)
+  const [scrollTopCursor, setScrollTopCursor] = React.useState("default")
   document.onscroll = function(){
     if (window.pageYOffset > 0){
-      setScrollTopState(1)
+      setScrollTopOpacity(1)
+      setScrollTopCursor("pointer")
     } else {
       window.scrollTo({top: 0, behavior: 'smooth'})
-      setScrollTopState(0)
+      setScrollTopOpacity(0)
+      setScrollTopCursor("default")
     }
   }
   const [menuState, setMenuState] = React.useState({
@@ -324,12 +327,17 @@ export default function Header() {
           {list("left")}
         </Drawer>
       </div>
-      <div style={{opacity: scrollTopState}} onClick={(e)=>{
+      <div style={{
+        opacity: scrollTopOpacity
+      }} onClick={(e) => {
         e.preventDefault()
         window.scrollTo({top: 0, behavior: 'smooth'})
       }} className="Scroll-Top">
         <IconButton
           aria-label="scroll-top"
+          style={{
+            cursor: scrollTopCursor
+          }}
         >
           <ScrollTopIcon/>
         </IconButton>
