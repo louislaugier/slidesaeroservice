@@ -125,8 +125,15 @@ body>.MuiDrawer-root.MuiDrawer-modal{
   font-size: 2rem
 }
 
-.MuiCardContent-root p{
+.MuiCardContent-root, .MuiCardContent-root p{
   display: flex;
   flex-direction: column;
-  align-items: center
+  align-items: center;
+  margin: 0;
+  height: 100%
+}
+
+.MuiCardContent-root p{
+  justify-content: space-evenly;
+  margin-top: 15px
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/bradfitz/slice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/louislaugier/sas/server/database"
@@ -22,7 +23,16 @@ type Category struct {
 func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		query := database.StandardizeQuery(c.Request.URL.Query())
-		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + query + ";")
+		s := ""
+		val, isSubcat := c.Request.URL.Query()["is_subcategory"]
+		if isSubcat {
+			if query != "" {
+				s = " AND is_subcategory = '" + val[0] + "'"
+			} else {
+				s = " WHERE is_subcategory = '" + val[0] + "'"
+			}
+		}
+		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + query + s + ";")
 		defer categoryRows.Close()
 		if err == nil {
 			categories := []*Category{}
@@ -42,6 +52,9 @@ func CategoriesGET() func(c *gin.Context) {
 				}
 				categories = append(categories, cg)
 			}
+			slice.Sort(categories[:], func(i, j int) bool {
+				return categories[i].SlidesCount > categories[j].SlidesCount
+			})
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
 				"message":    "OK",

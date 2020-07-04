@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react"
-import { withStyles } from "@material-ui/core/styles"
+import {withStyles} from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -82,7 +82,7 @@ const styles = (theme) => ({
   },
   otherTools: {
     marginBottom: 50,
-    "align-items": "center"
+    alignItems: "center"
   },
   toolbar: {
     marginTop: 30,
@@ -130,25 +130,50 @@ const styles = (theme) => ({
   },
   arrowDown: {
     transform: "rotate(90deg)"
+  },
+  slidePrice: {
+    color: "black"
+  },
+  slideTitle: {
+    textAlign: "center",
+    height: 48,
+    display: "flex",
+    alignItems: "center"
   }
 })
 
 function SlideList(props) {
+  const [slidesCountState, setSlidesCountState] = useState(0)
+  useEffect(() => {
+    const fetchSlidesCount = async () => {
+      const result = await axios(base + "/slides/count")
+      setSlidesCountState(result.data.data)
+    }
+    fetchSlidesCount()
+  })
   const [scrollState, setScrollState] = useState({
     items: Array.from({length: 0}),
     hasMore: true,
     part: 0
   })
   useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios(base + "/slides?limit=56")
+    const fetchSlides = async () => {
+      const result = await axios(base + "/slides?limit=56&orderby=created_at&order=desc")
       setScrollState({
         items: result.data.data,
         hasMore: true,
         part: 1
       })
     }
-    fetchData()
+    fetchSlides()
+  }, [])
+  
+  useEffect(() => {
+    const fetchCats = async () => {
+      const result = await axios(base + "/slides/categories?is_subcategory=false")
+      props.setCategoriesState(result.data.data)
+    }
+    fetchCats()
   }, [])
   const [slideTypeState, setSlideTypeState] = useState("all")
   const handleSlideTypeChange = (event) => {
@@ -160,7 +185,6 @@ function SlideList(props) {
   const handleAuctionsOnlyChange = (event) => {
     setAuctionOnlyState({...auctionOnlyState, [event.target.name]: event.target.checked})
   }
-  
   const {classes} = props
   const [orderByState, setOrderByState] = useState(null)
   const [ascDescState, setAscDescState] = useState(null)
@@ -200,15 +224,12 @@ function SlideList(props) {
                 variant="scrollable"
                 scrollButtons="on"
               >
-                <Tab label="All" />
-                <Tab label="Boeing (354)"/>
-                <Tab label="Airbus (266)"/>
-                <Tab label="Lockheed (92)"/>
-                <Tab label="Russian Types"/>
-                <Tab label="French Types"/>
-                <Tab label="English Types"/>
-                <Tab label="English Types"/>
-                <Tab label="English Types"/>
+                <Tab key={0} label={"All (" + slidesCountState + ")"}/>
+                {
+                  props.categoriesState !== null ? props.categoriesState.map((category, i) => (
+                    <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
+                  )) : <></>
+                }
               </Tabs>
             </Paper>
           </Grid>
@@ -284,7 +305,7 @@ function SlideList(props) {
         <InfiniteScroll
           dataLength={scrollState.items.length}
           next={() => {
-            if (scrollState.items.length >= 600) {
+            if (scrollState.items.length >= slidesCountState) {
               setScrollState({
                 items: scrollState.items,
                 hasMore: false,
@@ -294,9 +315,9 @@ function SlideList(props) {
             }
             setTimeout(() => {
               let result = []
-              const fetchData = async () => {
+              const fetchMoreSlides = async () => {
                 result = await axios(
-                  base + "/slides?limit=56&offset=" + (56 * scrollState.part).toString(),
+                  base + "/slides?limit=56&offset=" + (56 * scrollState.part).toString() + "&orderby=created_at&order=desc",
                 )
                 setScrollState({
                   items: scrollState.items.concat(result.data.data),
@@ -304,7 +325,7 @@ function SlideList(props) {
                   part: scrollState.part + 1
                 })
               }
-              fetchData()
+              fetchMoreSlides()
             }, 500)
           }}
           hasMore={scrollState.hasMore}
@@ -313,9 +334,12 @@ function SlideList(props) {
               scrollState.items !== null ? scrollState.items.map((slide, i) => (
                 <Grid key={i} item>
                   <Card style={{
-                          height: 190,
-                          width: 300
-                        }} className={classes.card}
+                      height: 240,
+                      width: 300,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }} className={classes.card}
                   >
                     <CardContent>
                       <Typography color="textSecondary" gutterBottom>
@@ -324,8 +348,12 @@ function SlideList(props) {
                         </span>
                         <img style={{
                           height: 152,
-                          width: 240
+                          width: 240,
+                          borderRadius: 5
                         }} src={slide.image_path} alt="Slide"/>
+                        <span className={classes.slidePrice}>
+                          €{slide.price}
+                        </span>
                       </Typography>
                     </CardContent>
                   </Card>

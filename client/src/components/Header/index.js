@@ -13,23 +13,23 @@ import Paper from "@material-ui/core/Paper"
 import InputBase from "@material-ui/core/InputBase"
 import SearchIcon from "@material-ui/icons/Search"
 import Drawer from "@material-ui/core/Drawer"
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import HomeIcon from '@material-ui/icons/Home'
-import Divider from '@material-ui/core/Divider'
-import AuctionIcon from '@material-ui/icons/Gavel'
-import ContactIcon from '@material-ui/icons/Email'
-import ExpandLess from '@material-ui/icons/ExpandLess'
-import ExpandMore from '@material-ui/icons/ExpandMore'
-import Collapse from '@material-ui/core/Collapse'
-import HelpIcon from '@material-ui/icons/Help'
-import MoreIcon from '@material-ui/icons/MoreVert'
-import LoginIcon from '@material-ui/icons/ExitToApp'
-import SignupIcon from '@material-ui/icons/AssignmentInd'
-import Fade from '@material-ui/core/Fade'
-import ScrollTopIcon from '@material-ui/icons/KeyboardArrowUp'
+import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemIcon from "@material-ui/core/ListItemIcon"
+import ListItemText from "@material-ui/core/ListItemText"
+import HomeIcon from "@material-ui/icons/Home"
+import Divider from "@material-ui/core/Divider"
+import AuctionIcon from "@material-ui/icons/Gavel"
+import ContactIcon from "@material-ui/icons/Email"
+import ExpandLess from "@material-ui/icons/ExpandLess"
+import ExpandMore from "@material-ui/icons/ExpandMore"
+import Collapse from "@material-ui/core/Collapse"
+import HelpIcon from "@material-ui/icons/Help"
+import MoreIcon from "@material-ui/icons/MoreVert"
+import LoginIcon from "@material-ui/icons/ExitToApp"
+import SignupIcon from "@material-ui/icons/AssignmentInd"
+import Fade from "@material-ui/core/Fade"
+import ScrollTopIcon from "@material-ui/icons/KeyboardArrowUp"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -86,7 +86,7 @@ export default function Header() {
       setScrollTopOpacity(1)
       setScrollTopCursor("pointer")
     } else {
-      window.scrollTo({top: 0, behavior: 'smooth'})
+      window.scrollTo({top: 0, behavior: "smooth"})
       setScrollTopOpacity(0)
       setScrollTopCursor("default")
     }
@@ -179,6 +179,7 @@ export default function Header() {
       <Divider/>
       <Collapse in={categoriesNestOpen} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
+          {/* Map categories state */}
           <ListItem onClick={handleSubCategoriesNestClick(0)} button className={classes.nested}>
             <ListItemText primary="Lorem ipsum"/>
             {subCategoriesNestOpen[0] ? <ExpandLess/> : <ExpandMore/>}
@@ -194,39 +195,6 @@ export default function Header() {
                 <ListItem button className={classes.nested2}>
                   <ListItemText primary="Subcategory"/>
                 </ListItem>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
-                </ListItem>
-              </List>
-          </Collapse>
-          <ListItem onClick={handleSubCategoriesNestClick(1)} button className={classes.nested}>
-            <ListItemText primary="Lorem ipsum"/>
-            {subCategoriesNestOpen[1] ? <ExpandLess/> : <ExpandMore/>}
-          </ListItem>
-          <Collapse in={subCategoriesNestOpen[1]} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
-                </ListItem>
-              </List>
-          </Collapse>
-          <ListItem onClick={handleSubCategoriesNestClick(2)} button className={classes.nested}>
-            <ListItemText primary="Lorem ipsum"/>
-            {subCategoriesNestOpen[2] ? <ExpandLess/> : <ExpandMore/>}
-          </ListItem>
-          <Collapse in={subCategoriesNestOpen[2]} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
-                </ListItem>
-              </List>
-          </Collapse>
-          <ListItem onClick={handleSubCategoriesNestClick(3)} button className={classes.nested}>
-            <ListItemText primary="Lorem ipsum"/>
-            {subCategoriesNestOpen[3] ? <ExpandLess/> : <ExpandMore/>}
-          </ListItem>
-          <Collapse in={subCategoriesNestOpen[3]} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
                 <ListItem button className={classes.nested2}>
                   <ListItemText primary="Subcategory"/>
                 </ListItem>
@@ -331,7 +299,7 @@ export default function Header() {
         opacity: scrollTopOpacity
       }} onClick={(e) => {
         e.preventDefault()
-        window.scrollTo({top: 0, behavior: 'smooth'})
+        window.scrollTo({top: 0, behavior: "smooth"})
       }} className="Scroll-Top">
         <IconButton
           aria-label="scroll-top"

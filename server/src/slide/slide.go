@@ -1,6 +1,7 @@
 package slide
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"math"
@@ -13,20 +14,20 @@ import (
 
 // Slide export
 type Slide struct {
-	ID            uuid.UUID `json:"id"`
-	Title         string    `json:"title"`
-	ImagePath     string    `json:"image_path"`
-	IsKodak       bool      `json:"is_kodak"`
-	Description   string    `json:"description"`
-	Price         float64   `json:"price"`
-	Stock         int       `json:"stock"`
-	CategoryID    uuid.UUID `json:"category_id"`
-	SubcategoryID uuid.UUID `json:"subcategory_id"`
-	AverageRating float64   `json:"average_rating,omitempty"`
-	SalesPrice    float64   `json:"sales_price,omitempty"`
-	OnSale        bool      `json:"on_sale"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID            uuid.UUID       `json:"id"`
+	Title         string          `json:"title"`
+	ImagePath     string          `json:"image_path"`
+	IsKodak       bool            `json:"is_kodak"`
+	Description   string          `json:"description"`
+	Price         float64         `json:"price"`
+	Stock         int             `json:"stock"`
+	CategoryID    uuid.UUID       `json:"category_id"`
+	SubcategoryID uuid.UUID       `json:"subcategory_id"`
+	AverageRating float64         `json:"average_rating,omitempty"`
+	SalesPrice    sql.NullFloat64 `json:"sales_price"`
+	OnSale        bool            `json:"on_sale"`
+	CreatedAt     time.Time       `json:"created_at"`
+	UpdatedAt     time.Time       `json:"updated_at"`
 }
 
 // GET slides or a slide
@@ -103,6 +104,36 @@ func GET() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
+			})
+			log.Println(err)
+		}
+	}
+}
+
+// CountGET for all slides
+func CountGET() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		countRow, err := database.Postgres.Query("SELECT COUNT(id) FROM slides;")
+		defer countRow.Close()
+		if err == nil {
+			count := 0
+			for countRow.Next() {
+				countRow.Scan(&count)
+			}
+			c.JSON(200, &gin.H{
+				"statusCode": "200",
+				"message":    "OK",
+				"error":      nil,
+				"meta": gin.H{
+					"resultCount": count,
+				},
+				"data": count,
+			})
+		} else {
+			c.JSON(500, &gin.H{
+				"statusCode": "500",
+				"message":    "Internal Server Error",
+				"error":      err.Error(),
 			})
 			log.Println(err)
 		}

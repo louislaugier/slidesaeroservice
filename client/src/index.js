@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useState} from "react"
 import ReactDOM from "react-dom"
 import "./App.css"
 import * as serviceWorker from "./serviceWorker"
@@ -11,10 +11,14 @@ function App() {
     alert("Cookies must be enabled to use this website!")
     window.location = "/"
   }
+  const [categoriesState, setCategoriesState] = useState(null)
   return (
     <div className="App">
-      <Header />
-      <SlideList />
+      <Header/>
+      <SlideList
+        categoriesState={categoriesState}
+        setCategoriesState={setCategoriesState}
+      />
       <MUICookieConsent 
         cookieName="sas-cookies"
         componentType="Snackbar"

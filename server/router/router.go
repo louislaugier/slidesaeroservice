@@ -25,6 +25,7 @@ func Start() *gin.Engine {
 	}))
 
 	r.GET("/api/v1/slides", slide.GET())
+	r.GET("/api/v1/slides/count", slide.CountGET())
 	r.POST("/api/v1/slide", slide.POST())
 	r.PUT("/api/v1/slide", slide.PUT())
 	r.DELETE("/api/v1/slide", slide.DELETE())
