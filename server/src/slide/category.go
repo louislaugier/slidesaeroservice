@@ -22,17 +22,25 @@ type Category struct {
 // CategoriesGET for slides
 func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
-		s := ""
-		val, isSubcat := c.Request.URL.Query()["is_subcategory"]
-		if isSubcat {
-			if query != "" {
-				s = " AND is_subcategory = '" + val[0] + "'"
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		query := ""
+		q, subcat := c.Request.URL.Query()["is_subcategory"]
+		if subcat {
+			if queryParams != "" {
+				query = " AND is_subcategory = '" + q[0] + "'"
 			} else {
-				s = " WHERE is_subcategory = '" + val[0] + "'"
+				query = " WHERE is_subcategory = '" + q[0] + "'"
 			}
 		}
-		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + query + s + ";")
+		q, parentcat := c.Request.URL.Query()["parent_category_id"]
+		if parentcat {
+			if queryParams != "" || query != "" {
+				query = " AND parent_category_id = '" + q[0] + "'"
+			} else {
+				query = " WHERE parent_category_id = '" + q[0] + "'"
+			}
+		}
+		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + queryParams + query + ";")
 		defer categoryRows.Close()
 		if err == nil {
 			categories := []*Category{}
@@ -116,13 +124,13 @@ func CategoryPOST() func(c *gin.Context) {
 // CategoryPUT for slides
 func CategoryPUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
 		cg := &Category{}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, cg)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE categories SET id = $1, title = $2, is_subcategory = $3, parent_category_id = $4"+query+";", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategoryID)
+			tx.Exec("UPDATE categories SET id = $1, title = $2, is_subcategory = $3, parent_category_id = $4"+queryParams+";", cg.ID, cg.Title, cg.IsSubcategory, cg.ParentCategoryID)
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -151,10 +159,10 @@ func CategoryPUT() func(c *gin.Context) {
 // CategoryDELETE for slides
 func CategoryDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("DELETE FROM categories" + query + ";")
+			tx.Exec("DELETE FROM categories" + queryParams + ";")
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

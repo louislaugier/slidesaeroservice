@@ -33,17 +33,17 @@ type Slide struct {
 // GET slides or a slide
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
 		s := ""
 		search, isSearch := c.Request.URL.Query()["search"]
 		if isSearch {
-			if query != "" {
+			if queryParams != "" {
 				s = " AND title = '" + search[0] + "'"
 			} else {
 				s = " WHERE title = '" + search[0] + "'"
 			}
 		}
-		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, is_kodak, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + s + ";")
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, is_kodak, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + queryParams + s + ";")
 		defer slideRows.Close()
 		if err == nil {
 			slides := []*Slide{}
@@ -179,7 +179,7 @@ func POST() func(c *gin.Context) {
 // PUT slide
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
 		s := &Slide{
 			UpdatedAt: time.Now(),
 		}
@@ -187,7 +187,7 @@ func PUT() func(c *gin.Context) {
 		json.Unmarshal(payload, s)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("UPDATE slides SET title = $1, image_path = $2, description = $3, price = $4, stock = $5, category_id = $6, subcategory_id_id = $7, sales_price = $8, on_sale = $9, updated_at = $10, is_kodak = $11"+query+";", s.Title, s.ImagePath, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.UpdatedAt, s.IsKodak)
+			tx.Exec("UPDATE slides SET title = $1, image_path = $2, description = $3, price = $4, stock = $5, category_id = $6, subcategory_id_id = $7, sales_price = $8, on_sale = $9, updated_at = $10, is_kodak = $11"+queryParams+";", s.Title, s.ImagePath, s.Description, s.Price, s.Stock, s.CategoryID, s.SubcategoryID, s.SalesPrice, s.OnSale, s.UpdatedAt, s.IsKodak)
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -216,10 +216,10 @@ func PUT() func(c *gin.Context) {
 // DELETE slide
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("DELETE FROM slides" + query + ";")
+			tx.Exec("DELETE FROM slides" + queryParams + ";")
 			tx.Commit()
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

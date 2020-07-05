@@ -30,6 +30,7 @@ import LoginIcon from "@material-ui/icons/ExitToApp"
 import SignupIcon from "@material-ui/icons/AssignmentInd"
 import Fade from "@material-ui/core/Fade"
 import ScrollTopIcon from "@material-ui/icons/KeyboardArrowUp"
+import axios from "axios"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,14 +72,14 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(6)
   },
   nested2: {
-    paddingLeft: theme.spacing(8)
+    paddingLeft: theme.spacing(10)
   },
   nestedCateg: {
     paddingLeft: 0
-  },
+  }
 }))
 
-export default function Header() {
+export default function Header(props) {
   const [scrollTopOpacity, setScrollTopOpacity] = React.useState(0)
   const [scrollTopCursor, setScrollTopCursor] = React.useState("default")
   document.onscroll = function(){
@@ -97,39 +98,47 @@ export default function Header() {
   const toggleMenu = (anchor, open) => () => {
     setMenuState({ ...menuState, [anchor]: open })
   }
-  const [myAccountNestOpen, setMyAccountNestOpen] = React.useState(false)
+  const [myAccountNestState, setMyAccountNestState] = React.useState(false)
   const handleMyAccountNestClick = () => {
-    setMyAccountNestOpen(!myAccountNestOpen)
+    setMyAccountNestState(!myAccountNestState)
   }
-  const [categoriesNestOpen, setCategoriesNestOpen] = React.useState(false)
+  const [categoriesNestState, setCategoriesNestState] = React.useState(false)
   const handleCategoriesNestClick = () => {
-    setCategoriesNestOpen(!categoriesNestOpen)
+    setCategoriesNestState(!categoriesNestState)
   }
-  const [subCategoriesNestOpen, setSubCategoriesNestOpen] = React.useState({
-    0: false,
-    1: false,
-    2: false, 
-    3: false
-  })
-  const handleSubCategoriesNestClick = (i) => () => {
-    setSubCategoriesNestOpen({...subCategoriesNestOpen, [i]: !subCategoriesNestOpen[i]})
+  const subCategoriesNests = {}
+  if (props.categoriesState != null) {
+    props.categoriesState.forEach((category,i) => {
+      subCategoriesNests.i = false
+    })
   }
-  const [anchorElProfile, setAnchorElProfile] = React.useState(null)
+  const [subCategoriesNestState, setSubCategoriesNestState] = React.useState(subCategoriesNests)
+  const handleSubCategoriesNestClick = (category, i) => async () => {
+    if (props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined) {} else {
+      const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + category.id)
+      props.setSubCategoriesState({
+        ...props.subCategoriesState,
+        [i]: result.data.data
+      })
+    }
+    setSubCategoriesNestState({...subCategoriesNestState, [i]: !subCategoriesNestState[i]})
+  }
+  const [accountButtonState, setAccountButtonState] = React.useState(null)
   const handleProfileClick = (event) => {
-    setAnchorElProfile(event.currentTarget)
+    setAccountButtonState(event.currentTarget)
   }
   const handleProfileClose = () => {
-    setAnchorElProfile(null)
+    setAccountButtonState(null)
   }
-  const [anchorElMore, setAnchorElMore] = React.useState(null)
+  const [moreButtonState, setMoreButtonState] = React.useState(null)
   const handleMoreClick = (event) => {
-    setAnchorElMore(event.currentTarget)
+    setMoreButtonState(event.currentTarget)
   }
   const handleMoreClose = () => {
-    setAnchorElMore(null)
+    setMoreButtonState(null)
   }
   const classes = useStyles()
-  const list = (anchor) => (
+  const list = () => (
     <div
       className={classes.list}
       role="presentation"
@@ -150,9 +159,9 @@ export default function Header() {
         <ListItem onClick={handleMyAccountNestClick} button key={"my-account"}>
           <ListItemIcon><UserIcon/></ListItemIcon>
           <ListItemText primary={"Account"}/>
-          {myAccountNestOpen ? <ExpandLess/> : <ExpandMore/>}
+          {myAccountNestState ? <ExpandLess/> : <ExpandMore/>}
         </ListItem>
-        <Collapse in={myAccountNestOpen} timeout="auto" unmountOnExit>
+        <Collapse in={myAccountNestState} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             <ListItem button className={classes.nested}>
               <ListItemIcon><LoginIcon/></ListItemIcon>
@@ -173,33 +182,33 @@ export default function Header() {
       <List>
         <ListItem onClick={handleCategoriesNestClick} button key={"categories"}>
           <ListItemText className="Menu-Categories" primary={"Categories"}/>
-          {categoriesNestOpen ? <ExpandLess/> : <ExpandMore/>}
+          {categoriesNestState ? <ExpandLess/> : <ExpandMore/>}
         </ListItem>
       </List>
       <Divider/>
-      <Collapse in={categoriesNestOpen} timeout="auto" unmountOnExit>
+      <Collapse in={categoriesNestState} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {/* Map categories state */}
-          <ListItem onClick={handleSubCategoriesNestClick(0)} button className={classes.nested}>
-            <ListItemText primary="Lorem ipsum"/>
-            {subCategoriesNestOpen[0] ? <ExpandLess/> : <ExpandMore/>}
-          </ListItem>
-          <Collapse in={subCategoriesNestOpen[0]} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
+          {
+            props.categoriesState !== null ? props.categoriesState.map((category, i) => (
+              <>
+                <ListItem onClick={handleSubCategoriesNestClick(category, i)} button className={classes.nested}>
+                  <ListItemText primary={category.title}/>
+                  {subCategoriesNestState[i] ? <ExpandLess/> : <ExpandMore/>}
                 </ListItem>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
-                </ListItem>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
-                </ListItem>
-                <ListItem button className={classes.nested2}>
-                  <ListItemText primary="Subcategory"/>
-                </ListItem>
-              </List>
-          </Collapse>
+                <Collapse in={subCategoriesNestState[i]} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {
+                      props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined ? props.subCategoriesState[i].map((subCategory) => (
+                        <ListItem button className={classes.nested2}>
+                          <ListItemText className={classes.nested2Text} primary={subCategory.title}/>
+                        </ListItem>
+                      )) : <></>
+                    }
+                  </List>
+                </Collapse>
+              </>
+            )) : <></>
+          }
         </List>
       </Collapse>
     </div>
@@ -253,9 +262,9 @@ export default function Header() {
               </IconButton>
               <Menu
                 id="profile-menu"
-                anchorEl={anchorElProfile}
+                anchorEl={accountButtonState}
                 keepMounted
-                open={Boolean(anchorElProfile)}
+                open={Boolean(accountButtonState)}
                 onClose={handleProfileClose}
                 TransitionComponent={Fade}
               >
@@ -273,9 +282,9 @@ export default function Header() {
               </IconButton>
               <Menu
                 id="more-menu"
-                anchorEl={anchorElMore}
+                anchorEl={moreButtonState}
                 keepMounted
-                open={Boolean(anchorElMore)}
+                open={Boolean(moreButtonState)}
                 onClose={handleMoreClose}
                 TransitionComponent={Fade}
               >
@@ -310,7 +319,6 @@ export default function Header() {
           <ScrollTopIcon/>
         </IconButton>
       </div>
-      
     </>
   )
 }

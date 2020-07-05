@@ -21,8 +21,6 @@ import RadioGroup from "@material-ui/core/RadioGroup"
 import FormControl from "@material-ui/core/FormControl"
 import axios from "axios"
 
-const base = "http://localhost:8080/api/v1"
-
 const IOSSwitch = withStyles((theme) => ({
   root: {
     width: 42,
@@ -139,26 +137,32 @@ const styles = (theme) => ({
     height: 48,
     display: "flex",
     alignItems: "center"
+  },
+  switchText: {
+    opacity: 0.5
   }
 })
 
 function SlideList(props) {
   const [slidesCountState, setSlidesCountState] = useState(0)
-  useEffect(() => {
-    const fetchSlidesCount = async () => {
-      const result = await axios(base + "/slides/count")
-      setSlidesCountState(result.data.data)
-    }
-    fetchSlidesCount()
-  })
   const [scrollState, setScrollState] = useState({
     items: Array.from({length: 0}),
     hasMore: true,
     part: 0
   })
   useEffect(() => {
+    const fetchSlidesCount = async () => {
+      const result = await axios(props.endpoint + "/slides/count")
+      setSlidesCountState(result.data.data)
+    }
+    fetchSlidesCount()
+    const fetchCategories = async () => {
+      const result = await axios(props.endpoint + "/slides/categories?is_subcategory=false")
+      props.setCategoriesState(result.data.data)
+    }
+    fetchCategories()
     const fetchSlides = async () => {
-      const result = await axios(base + "/slides?limit=56&orderby=created_at&order=desc")
+      const result = await axios(props.endpoint + "/slides?limit=56&orderby=created_at&order=desc")
       setScrollState({
         items: result.data.data,
         hasMore: true,
@@ -166,14 +170,6 @@ function SlideList(props) {
       })
     }
     fetchSlides()
-  }, [])
-  
-  useEffect(() => {
-    const fetchCats = async () => {
-      const result = await axios(base + "/slides/categories?is_subcategory=false")
-      props.setCategoriesState(result.data.data)
-    }
-    fetchCats()
   }, [])
   const [slideTypeState, setSlideTypeState] = useState("all")
   const handleSlideTypeChange = (event) => {
@@ -201,7 +197,7 @@ function SlideList(props) {
     setAscDescState(null)
   }
   const [value, setValue] = useState(0)
-  const handleCategoryChange = (event, newValue) => {
+  const handleCategoryChange = (e, newValue) => {
     setValue(newValue)
   }
   return (
@@ -298,7 +294,7 @@ function SlideList(props) {
               <FormControlLabel
                 control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
               />
-              <p>Auctions only</p>
+              <p className={classes.switchText} style={{opactity: 0.5}}>Auctions only</p>
             </div>
           </Grid>
         </Grid>
@@ -317,7 +313,7 @@ function SlideList(props) {
               let result = []
               const fetchMoreSlides = async () => {
                 result = await axios(
-                  base + "/slides?limit=56&offset=" + (56 * scrollState.part).toString() + "&orderby=created_at&order=desc",
+                  props.endpoint + "/slides?limit=56&offset=" + (56 * scrollState.part).toString() + "&orderby=created_at&order=desc",
                 )
                 setScrollState({
                   items: scrollState.items.concat(result.data.data),
@@ -350,7 +346,7 @@ function SlideList(props) {
                           height: 152,
                           width: 240,
                           borderRadius: 5
-                        }} src={slide.image_path} alt="Slide"/>
+                        }} src={""} alt="Slide"/>
                         <span className={classes.slidePrice}>
                           €{slide.price}
                         </span>

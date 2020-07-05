@@ -90,10 +90,6 @@ body>.MuiDrawer-root.MuiDrawer-modal{
   padding: 0
 }
 
-.MuiList-root.MuiList-padding:nth-child(5)>div>div>div{
-  padding-left: 0
-}
-
 .MuiList-root.MuiList-padding:nth-child(3)>div:first-child>div:first-child{
   flex: unset;
   margin-right: 10px

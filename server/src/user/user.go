@@ -34,8 +34,8 @@ type user struct {
 // GET users or a user
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
-		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, is_admin, email_verified FROM users" + query + ";")
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, is_admin, email_verified FROM users" + queryParams + ";")
 		defer userRows.Close()
 		if err == nil {
 			users := []*user{}
@@ -114,27 +114,27 @@ func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		col := c.Request.URL.Query()["col"][0]
 		val := c.Request.URL.Query()["val"][0]
-		query := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
 		tx, err := database.Postgres.Begin()
 		if err == nil {
 			msg := "OK"
 			if col == "password_hash" {
 				// if c.Request.URL.Query()["val"][0] == redis.get(email)
 				op := c.Request.URL.Query()["old_pwd"][0]
-				userRow, _ := database.Postgres.Query("SELECT email, password_hash FROM users" + query + ";")
+				userRow, _ := database.Postgres.Query("SELECT email, password_hash FROM users" + queryParams + ";")
 				defer userRow.Close()
 				u := user{}
 				for userRow.Next() {
 					userRow.Scan(&u.Email, &u.PasswordHash)
 				}
 				if op == u.PasswordHash {
-					tx.Exec("UPDATE users SET password_hash = $1, updated_at = $2"+query+";", val, time.Now())
+					tx.Exec("UPDATE users SET password_hash = $1, updated_at = $2"+queryParams+";", val, time.Now())
 					database.Redis.Del(database.Context, u.Email)
 				} else {
 					msg = "Incorrect password"
 				}
 			} else {
-				tx.Exec("UPDATE users SET "+col+" = $1, updated_at = $2"+query+";", val, time.Now())
+				tx.Exec("UPDATE users SET "+col+" = $1, updated_at = $2"+queryParams+";", val, time.Now())
 			}
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -161,8 +161,8 @@ func PUT() func(c *gin.Context) {
 // DELETE user
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		query := database.StandardizeQuery(c.Request.URL.Query())
-		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, FROM users" + query + ";")
+		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, FROM users" + queryParams + ";")
 		defer userRows.Close()
 		if err == nil {
 			u := &user{}
@@ -170,7 +170,7 @@ func DELETE() func(c *gin.Context) {
 				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.PasswordHash, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt)
 			}
 			tx, _ := database.Postgres.Begin()
-			_, err = tx.Exec("DELETE FROM users" + query + ";")
+			_, err = tx.Exec("DELETE FROM users" + queryParams + ";")
 			tx.Commit()
 			txn, _ := database.Postgres.Begin()
 			txn.Exec("INSERT INTO deleted_users (id, first_name, last_name, email, street_address, postcode, city, country, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);", u.ID, u.FirstName, u.LastName, u.Email, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.UpdatedAt, time.Now())
