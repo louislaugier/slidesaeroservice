@@ -208,7 +208,6 @@ function SlideList(props) {
         })
       }
     }
-    console.log(props.subCategoriesState)
   }
   return (
     <Grid container justify="center" className={classes.container}>
