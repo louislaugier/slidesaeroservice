@@ -197,8 +197,18 @@ function SlideList(props) {
     setAscDescState(null)
   }
   const [value, setValue] = useState(0)
-  const handleCategoryChange = (e, newValue) => {
-    setValue(newValue)
+  const handleCategoryChange = async (event, i) => {
+    setValue(i)
+    if (i > 0) {
+      if (!(props.subCategoriesState !== null && props.subCategoriesState[i-1] !== undefined)) {
+        const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
+        props.setSubCategoriesState({
+          ...props.subCategoriesState,
+          [i]: result.data.data
+        })
+      }
+    }
+    console.log(props.subCategoriesState)
   }
   return (
     <Grid container justify="center" className={classes.container}>

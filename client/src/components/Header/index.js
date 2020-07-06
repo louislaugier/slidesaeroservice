@@ -114,7 +114,7 @@ export default function Header(props) {
   }
   const [subCategoriesNestState, setSubCategoriesNestState] = React.useState(subCategoriesNests)
   const handleSubCategoriesNestClick = (category, i) => async () => {
-    if (props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined) {} else {
+    if (!(props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined)) {
       const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + category.id)
       props.setSubCategoriesState({
         ...props.subCategoriesState,
