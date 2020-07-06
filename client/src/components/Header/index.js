@@ -306,8 +306,7 @@ export default function Header(props) {
       </div>
       <div style={{
         opacity: scrollTopOpacity
-      }} onClick={(e) => {
-        e.preventDefault()
+      }} onClick={() => {
         window.scrollTo({top: 0, behavior: "smooth"})
       }} className="Scroll-Top">
         <IconButton
