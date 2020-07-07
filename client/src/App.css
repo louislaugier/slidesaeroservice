@@ -22,6 +22,10 @@ body>.MuiDrawer-root.MuiDrawer-modal{
   top: 40px
 }
 
+.MuiToolbar-root.MuiToolbar-regular.MuiToolbar-gutters div:last-child{
+  display: flex
+}
+
 .MuiDrawer-root.MuiDrawer-modal>.MuiPaper-root.MuiDrawer-paper.MuiDrawer-paperAnchorLeft{
   z-index: 1
 }

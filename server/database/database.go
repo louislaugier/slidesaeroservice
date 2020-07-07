@@ -34,14 +34,14 @@ func connect() (*sql.DB, *redis.Client) {
 }
 
 // StandardizeQuery from HTTP to SQL
-func StandardizeQuery(query url.Values) string {
+func StandardizeQuery(query url.Values, operator string) string {
 	ID := ""
 	orderBy := ""
 	order := ""
 	limit := ""
 	offset := ""
 	if _, i := query["id"]; i {
-		orderBy = "WHERE id='" + query["id"][0] + "' "
+		orderBy = operator + " id='" + query["id"][0] + "' "
 	}
 	if _, i := query["orderby"]; i {
 		orderBy = "ORDER BY " + query["orderby"][0] + " "

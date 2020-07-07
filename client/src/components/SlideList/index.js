@@ -79,7 +79,8 @@ const styles = (theme) => ({
     flexGrow: 1
   },
   otherTools: {
-    alignItems: "center"
+    alignItems: "center",
+    marginLeft: 40
   },
   toolbar: {
     marginTop: 30,
@@ -156,7 +157,10 @@ const styles = (theme) => ({
 function SlideList(props) {
   const {classes} = props
   const [slidesCountState, setSlidesCountState] = useState(0)
-  const [subCatCountState, setSubCatCountState] = useState(0)
+  const [subCatCountState, setSubCatCountState] = useState({
+    current: "",
+    count: 0
+  })
   const [scrollState, setScrollState] = useState({
     items: Array.from({length: 0}),
     hasMore: true,
@@ -219,14 +223,15 @@ function SlideList(props) {
         },
         tab: 0
       })
-      if (!(props.subCategoriesState !== null && props.subCategoriesState[i-1] !== undefined)) {
-        const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
-        props.setSubCategoriesState({
-          ...props.subCategoriesState,
-          [i]: result.data.data
-        })
-      }
-      setSubCatCountState(props.categoriesState[i-1].slides_count)
+      const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
+      props.setSubCategoriesState({
+        ...props.subCategoriesState,
+        [i]: result.data.data
+      })
+      setSubCatCountState({
+        current: props.categoriesState[i-1].title,
+        count: props.categoriesState[i-1].slides_count
+      })
     } else {
       setSelectedSubTab({
         barStyle: {
@@ -236,9 +241,13 @@ function SlideList(props) {
         },
         tab: 0
       })
-      setSubCatCountState(0)
+      setSubCatCountState({
+        current: "",
+        count: 0
+      })
     }
-    console.log(props.subCategoriesState)
+    // try useEffect
+    // console.log(props.subCategoriesState)
   }
   const [selectedSubTab, setSelectedSubTab] = useState({
     barStyle: {
@@ -296,7 +305,6 @@ function SlideList(props) {
           <Grid
             className={classes.otherTools}
             container
-            justify="flex-end"
             item
           >
             <FormControl component="fieldset">
@@ -378,9 +386,9 @@ function SlideList(props) {
                 variant="scrollable"
                 scrollButtons="on"
               >
-                <Tab key={0} label={"All (" + subCatCountState + ")"}/>
+                <Tab key={0} label={"All " + subCatCountState.current + " (" + subCatCountState.count + ")"}/>
                 {
-                  props.subCategoriesState !== null && props.subCategoriesState[selectedTab-1] !== undefined ? props.subCategoriesState[selectedTab-1].map((category, i) => (
+                  props.subCategoriesState !== null && props.subCategoriesState[selectedTab] !== undefined ? props.subCategoriesState[selectedTab].map((category, i) => (
                     <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
                   )) : <></>
                 }

@@ -108,7 +108,7 @@ export default function Header(props) {
   }
   const subCategoriesNests = {}
   if (props.categoriesState != null) {
-    props.categoriesState.forEach((category,i) => {
+    props.categoriesState.forEach((category, i) => {
       subCategoriesNests.i = false
     })
   }

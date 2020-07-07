@@ -22,11 +22,11 @@ type Category struct {
 // CategoriesGET for slides
 func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		_, ID := c.Request.URL.Query()["id"]
 		query := ""
 		q, subcat := c.Request.URL.Query()["is_subcategory"]
 		if subcat {
-			if queryParams != "" {
+			if ID {
 				query = " AND is_subcategory = '" + q[0] + "'"
 			} else {
 				query = " WHERE is_subcategory = '" + q[0] + "'"
@@ -34,13 +34,18 @@ func CategoriesGET() func(c *gin.Context) {
 		}
 		q, parentcat := c.Request.URL.Query()["parent_category_id"]
 		if parentcat {
-			if queryParams != "" || query != "" {
-				query = " AND parent_category_id = '" + q[0] + "'"
+			if ID {
+				query = " parent_category_id = '" + q[0] + "'"
 			} else {
 				query = " WHERE parent_category_id = '" + q[0] + "'"
 			}
 		}
-		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + queryParams + query + ";")
+		operator := " AND"
+		if query == "" {
+			operator = "WHERE"
+		}
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), operator)
+		categoryRows, err := database.Postgres.Query("SELECT id, title, is_subcategory, parent_category_id FROM categories" + query + queryParams + ";")
 		defer categoryRows.Close()
 		if err == nil {
 			categories := []*Category{}
@@ -124,7 +129,7 @@ func CategoryPOST() func(c *gin.Context) {
 // CategoryPUT for slides
 func CategoryPUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		cg := &Category{}
 		payload, _ := c.GetRawData()
 		json.Unmarshal(payload, cg)
@@ -159,7 +164,7 @@ func CategoryPUT() func(c *gin.Context) {
 // CategoryDELETE for slides
 func CategoryDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("DELETE FROM categories" + queryParams + ";")

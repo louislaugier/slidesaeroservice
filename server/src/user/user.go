@@ -34,7 +34,7 @@ type user struct {
 // GET users or a user
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, is_admin, email_verified FROM users" + queryParams + ";")
 		defer userRows.Close()
 		if err == nil {
@@ -114,7 +114,7 @@ func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		col := c.Request.URL.Query()["col"][0]
 		val := c.Request.URL.Query()["val"][0]
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		tx, err := database.Postgres.Begin()
 		if err == nil {
 			msg := "OK"
@@ -161,7 +161,7 @@ func PUT() func(c *gin.Context) {
 // DELETE user
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, FROM users" + queryParams + ";")
 		defer userRows.Close()
 		if err == nil {

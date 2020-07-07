@@ -33,17 +33,38 @@ type Slide struct {
 // GET slides or a slide
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
-		s := ""
+		_, ID := c.Request.URL.Query()["id"]
+		query := ""
 		search, isSearch := c.Request.URL.Query()["search"]
 		if isSearch {
-			if queryParams != "" {
-				s = " AND title = '" + search[0] + "'"
+			if ID {
+				query = " AND title = '" + search[0] + "'"
 			} else {
-				s = " WHERE title = '" + search[0] + "'"
+				query = " WHERE title = '" + search[0] + "'"
 			}
 		}
-		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, is_kodak, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + queryParams + s + ";")
+		q, parentcat := c.Request.URL.Query()["category_id"]
+		if parentcat {
+			if ID || query != "" {
+				query = " AND category_id = '" + q[0] + "'"
+			} else {
+				query = " WHERE category_id = '" + q[0] + "'"
+			}
+		}
+		q, subcat := c.Request.URL.Query()["subcategory_id"]
+		if subcat {
+			if ID || query != "" {
+				query = " AND subcategory_id = '" + q[0] + "'"
+			} else {
+				query = " WHERE subcategory_id = '" + q[0] + "'"
+			}
+		}
+		operator := " AND"
+		if query == "" {
+			operator = "WHERE"
+		}
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), operator)
+		slideRows, err := database.Postgres.Query("SELECT id, title, image_path, is_kodak, description, price, stock, category_id, subcategory_id, sales_price, on_sale, created_at, updated_at FROM slides" + query + queryParams + ";")
 		defer slideRows.Close()
 		if err == nil {
 			slides := []*Slide{}
@@ -179,7 +200,7 @@ func POST() func(c *gin.Context) {
 // PUT slide
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		s := &Slide{
 			UpdatedAt: time.Now(),
 		}
@@ -216,7 +237,7 @@ func PUT() func(c *gin.Context) {
 // DELETE slide
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query())
+		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
 		tx, err := database.Postgres.Begin()
 		if err == nil {
 			tx.Exec("DELETE FROM slides" + queryParams + ";")
