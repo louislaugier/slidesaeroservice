@@ -191,7 +191,7 @@ export default function Header(props) {
           {
             props.categoriesState !== null ? props.categoriesState.map((category, i) => (
               <>
-                <ListItem onClick={handleSubCategoriesNestClick(category, i)} button className={classes.nested}>
+                <ListItem key={i} onClick={handleSubCategoriesNestClick(category, i)} button className={classes.nested}>
                   <ListItemText primary={category.title}/>
                   {subCategoriesNestState[i] ? <ExpandLess/> : <ExpandMore/>}
                 </ListItem>
@@ -199,7 +199,7 @@ export default function Header(props) {
                   <List component="div" disablePadding>
                     {
                       props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined ? props.subCategoriesState[i].map((subCategory) => (
-                        <ListItem button className={classes.nested2}>
+                        <ListItem key={i} button className={classes.nested2}>
                           <ListItemText className={classes.nested2Text} primary={subCategory.title}/>
                         </ListItem>
                       )) : <></>

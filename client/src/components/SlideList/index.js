@@ -79,13 +79,20 @@ const styles = (theme) => ({
     flexGrow: 1
   },
   otherTools: {
-    marginBottom: 50,
     alignItems: "center"
   },
   toolbar: {
     marginTop: 30,
     width: "100%",
     display: "flex"
+  },
+  subToolbar: {
+    marginBottom: 30,
+    width: "100%",
+    transition: ".3s",
+    display: "flex",
+    left: 0,
+    bottom: 0
   },
   radioGroup: {
     marginRight: 50,
@@ -97,7 +104,7 @@ const styles = (theme) => ({
     }
   },
   toolbarFilter: {
-    display: "inline-block"
+    display: "inline-block",
   },
   filter: {
     marginLeft: 5
@@ -140,11 +147,16 @@ const styles = (theme) => ({
   },
   switchText: {
     opacity: 0.5
+  },
+  infiniteScroll: {
+    marginTop: 20
   }
 })
 
 function SlideList(props) {
+  const {classes} = props
   const [slidesCountState, setSlidesCountState] = useState(0)
+  const [subCatCountState, setSubCatCountState] = useState(0)
   const [scrollState, setScrollState] = useState({
     items: Array.from({length: 0}),
     hasMore: true,
@@ -181,7 +193,6 @@ function SlideList(props) {
   const handleAuctionsOnlyChange = (event) => {
     setAuctionOnlyState({...auctionOnlyState, [event.target.name]: event.target.checked})
   }
-  const {classes} = props
   const [orderByState, setOrderByState] = useState(null)
   const [ascDescState, setAscDescState] = useState(null)
   const handleOrderbyOpen = (event) => {
@@ -196,10 +207,18 @@ function SlideList(props) {
   const handleAscdescClose = () => {
     setAscDescState(null)
   }
-  const [value, setValue] = useState(0)
+  const [selectedTab, setSelectedTab] = useState(0)
   const handleCategoryChange = async (event, i) => {
-    setValue(i)
+    setSelectedTab(i)
     if (i > 0) {
+      setSelectedSubTab({
+        barstyle: {
+          opacity: 1,
+          zIndex: 0,
+          position: "relative",
+        },
+        tab: 0
+      })
       if (!(props.subCategoriesState !== null && props.subCategoriesState[i-1] !== undefined)) {
         const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
         props.setSubCategoriesState({
@@ -207,8 +226,44 @@ function SlideList(props) {
           [i]: result.data.data
         })
       }
+      setSubCatCountState(props.categoriesState[i-1].slides_count)
+    } else {
+      setSelectedSubTab({
+        barStyle: {
+          opacity: 0,
+          zIndex: -1,
+          position: "absolute"
+        },
+        tab: 0
+      })
+      setSubCatCountState(0)
+    }
+    console.log(props.subCategoriesState)
+  }
+  const [selectedSubTab, setSelectedSubTab] = useState({
+    barStyle: {
+      opacity: 0,
+      zIndex: -1,
+      position: "absolute"
+    },
+    tab: 0
+  })
+  const handleSubCategoryChange = async (event, i) => {
+    setSelectedSubTab({
+      barStyle: selectedSubTab.barStyle,
+      tab: i
+    })
+    if (i > 0) {
+      // if (!(props.subCategoriesState !== null && props.subCategoriesState[i-1] !== undefined)) {
+      //   const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
+      //   props.setSubCategoriesState({
+      //     ...props.subCategoriesState,
+      //     [i]: result.data.data
+      //   })
+      // }
     }
   }
+
   return (
     <Grid container justify="center" className={classes.container}>
       <Grid item xs={12}>
@@ -221,7 +276,7 @@ function SlideList(props) {
           >
             <Paper className={classes.paper} square>
               <Tabs
-                value={value}
+                value={selectedTab}
                 indicatorColor="primary"
                 textColor="primary"
                 onChange={handleCategoryChange}
@@ -306,6 +361,32 @@ function SlideList(props) {
               <p className={classes.switchText} style={{opactity: 0.5}}>Auctions only</p>
             </div>
           </Grid>
+          <Grid
+            container
+            justify="space-between"
+            className={classes.subToolbar}
+            item
+            style={selectedSubTab.barStyle}
+          >
+            <Paper className={classes.paper} square>
+              <Tabs
+                value={selectedSubTab.tab}
+                indicatorColor="primary"
+                textColor="primary"
+                onChange={handleSubCategoryChange}
+                aria-label="slide-type"
+                variant="scrollable"
+                scrollButtons="on"
+              >
+                <Tab key={0} label={"All (" + subCatCountState + ")"}/>
+                {
+                  props.subCategoriesState !== null && props.subCategoriesState[selectedTab-1] !== undefined ? props.subCategoriesState[selectedTab-1].map((category, i) => (
+                    <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
+                  )) : <></>
+                }
+              </Tabs>
+            </Paper>
+          </Grid>
         </Grid>
         <InfiniteScroll
           dataLength={scrollState.items.length}
@@ -334,6 +415,7 @@ function SlideList(props) {
             }, 500)
           }}
           hasMore={scrollState.hasMore}
+          className={classes.infiniteScroll}
           >
             {
               scrollState.items !== null ? scrollState.items.map((slide, i) => (
