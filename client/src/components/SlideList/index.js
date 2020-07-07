@@ -157,10 +157,6 @@ const styles = (theme) => ({
 function SlideList(props) {
   const {classes} = props
   const [slidesCountState, setSlidesCountState] = useState(0)
-  const [subCatCountState, setSubCatCountState] = useState({
-    current: "",
-    count: 0
-  })
   const [scrollState, setScrollState] = useState({
     items: Array.from({length: 0}),
     hasMore: true,
@@ -226,12 +222,13 @@ function SlideList(props) {
       const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
       props.setSubCategoriesState({
         ...props.subCategoriesState,
+        current: props.categoriesState[i-1].title,
+        count: props.categoriesState[i-1].slides_count,
         [i]: result.data.data
       })
-      setSubCatCountState({
-        current: props.categoriesState[i-1].title,
-        count: props.categoriesState[i-1].slides_count
-      })
+      // for each slide in scroll state, if slide.category_id !== cat remove it
+      // replace state to change route for next() function on infinite scroll
+      // if 56 - all slides > 0, fetch slides?category_id?=cat and add to list
     } else {
       setSelectedSubTab({
         barStyle: {
@@ -241,13 +238,14 @@ function SlideList(props) {
         },
         tab: 0
       })
-      setSubCatCountState({
-        current: "",
-        count: 0
+       props.setSubCategoriesState({
+        ...props.subCategoriesState,
+        count: 0,
+        current: ""
       })
+      // remove all slides, fetch without params and add to list
+      // replace state to change route for next() function on infinite scroll
     }
-    // try useEffect
-    // console.log(props.subCategoriesState)
   }
   const [selectedSubTab, setSelectedSubTab] = useState({
     barStyle: {
@@ -386,7 +384,7 @@ function SlideList(props) {
                 variant="scrollable"
                 scrollButtons="on"
               >
-                <Tab key={0} label={"All " + subCatCountState.current + " (" + subCatCountState.count + ")"}/>
+                <Tab key={0} label={"All " + props.subCategoriesState.current + " (" + props.subCategoriesState.count + ")"}/>
                 {
                   props.subCategoriesState !== null && props.subCategoriesState[selectedTab] !== undefined ? props.subCategoriesState[selectedTab].map((category, i) => (
                     <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>

@@ -14,7 +14,10 @@ function App() {
     window.location = "/"
   }
   const [categoriesState, setCategoriesState] = useState(null)
-  const [subCategoriesState, setSubCategoriesState] = useState(null)
+  const [subCategoriesState, setSubCategoriesState] = useState({
+    count: 0,
+    current: ""
+  })
   return (
     <div className="App">
       <Header
