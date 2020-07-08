@@ -443,7 +443,7 @@ function SlideList(props) {
                           height: 152,
                           width: 240,
                           borderRadius: 5
-                        }} src={slide.image_path} alt="Slide"/>
+                        }} src={slide.image_path + "t"} alt="Slide"/>
                         <span className={classes.slidePrice}>
                           €{slide.price}
                         </span>
