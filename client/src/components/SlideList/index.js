@@ -309,7 +309,7 @@ function SlideList(props) {
               <RadioGroup className={classes.radioGroup} value={slideTypeState} onChange={handleSlideTypeChange}>
                 <FormControlLabel value="all" control={<Radio className={classes.radio}/>} label="All"/>
                 <FormControlLabel value="kodak" control={<Radio className={classes.radio}/>} label="Kodak"/>
-                <FormControlLabel value="other" control={<Radio className={classes.radio}/>} label="Other"/>
+                <FormControlLabel value="provia" control={<Radio className={classes.radio}/>} label="Provia"/>
               </RadioGroup>
             </FormControl>
             <div className={classes.toolbarFilter}>
@@ -443,7 +443,7 @@ function SlideList(props) {
                           height: 152,
                           width: 240,
                           borderRadius: 5
-                        }} src={slide.image_path + "t"} alt="Slide"/>
+                        }} src={slide.image_path} alt="Slide"/>
                         <span className={classes.slidePrice}>
                           €{slide.price}
                         </span>
