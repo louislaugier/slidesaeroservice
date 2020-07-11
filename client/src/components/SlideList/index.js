@@ -226,7 +226,26 @@ function SlideList(props) {
         count: props.categoriesState[i-1].slides_count,
         [i]: result.data.data
       })
-      // for each slide in scroll state, if slide.category_id !== cat remove it
+
+      // for each slide in scroll state, if slide.category_id !== cat, remove it
+      setScrollState({
+        items: [],
+        hasMore: scrollState.hasMore,
+        part: scrollState.part
+      })
+      scrollState.items.forEach((slide, i) => {
+        if (slide.category_id === props.categoriesState[selectedTab].id) {
+          setScrollState({
+            items: [...scrollState.items, slide],
+            hasMore: scrollState.hasMore,
+            part: scrollState.part
+          })
+          console.log("yes:", slide.category_id)
+        } else {
+          console.log("no:", slide.category_id)
+        }
+      })
+      
       // replace state to change route for next() function on infinite scroll
       // if 56 - all slides > 0, fetch slides?category_id?=cat and add to list
     } else {
@@ -270,7 +289,6 @@ function SlideList(props) {
       // }
     }
   }
-
   return (
     <Grid container justify="center" className={classes.container}>
       <Grid item xs={12}>
