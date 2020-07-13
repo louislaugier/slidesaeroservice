@@ -219,35 +219,30 @@ function SlideList(props) {
         },
         tab: 0
       })
-      const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
+      const category = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
       props.setSubCategoriesState({
         ...props.subCategoriesState,
         current: props.categoriesState[i-1].title,
         count: props.categoriesState[i-1].slides_count,
-        [i]: result.data.data
+        [i]: category.data.data
       })
-
-      // for each slide in scroll state, if slide.category_id !== cat, remove it
+      if (!('slides' in props.categoriesState[i-1])) {
+        props.categoriesState[i-1].slides = []
+        scrollState.items.forEach(slide => {
+          if (slide.category_id === props.categoriesState[i-1].id) {
+            props.categoriesState[i-1].slides.push(slide)
+          }
+        })
+      }
+      if (props.categoriesState[i-1].slides.length < 56) {
+        const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i-1].id + "&limit=" + (56 - props.categoriesState[i-1].slides.length).toString() + "&offset=" + props.categoriesState[i-1].slides.length)
+        props.categoriesState[i-1].slides = props.categoriesState[i-1].slides.concat(fillSlides.data.data)
+      }
       setScrollState({
-        items: [],
+        items: props.categoriesState[i-1].slides,
         hasMore: scrollState.hasMore,
         part: scrollState.part
       })
-      scrollState.items.forEach((slide, i) => {
-        if (slide.category_id === props.categoriesState[selectedTab].id) {
-          setScrollState({
-            items: [...scrollState.items, slide],
-            hasMore: scrollState.hasMore,
-            part: scrollState.part
-          })
-          console.log("yes:", slide.category_id)
-        } else {
-          console.log("no:", slide.category_id)
-        }
-      })
-      
-      // replace state to change route for next() function on infinite scroll
-      // if 56 - all slides > 0, fetch slides?category_id?=cat and add to list
     } else {
       setSelectedSubTab({
         barStyle: {
@@ -263,8 +258,8 @@ function SlideList(props) {
         current: ""
       })
       // remove all slides, fetch without params and add to list
-      // replace state to change route for next() function on infinite scroll
     }
+    // replace state to change route for next() function on infinite scroll
   }
   const [selectedSubTab, setSelectedSubTab] = useState({
     barStyle: {
@@ -313,7 +308,7 @@ function SlideList(props) {
                 {
                   props.categoriesState !== null ? props.categoriesState.map((category, i) => (
                     <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
-                  )) : <></>
+                  )) : null
                 }
               </Tabs>
             </Paper>
@@ -406,7 +401,7 @@ function SlideList(props) {
                 {
                   props.subCategoriesState !== null && props.subCategoriesState[selectedTab] !== undefined ? props.subCategoriesState[selectedTab].map((category, i) => (
                     <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
-                  )) : <></>
+                  )) : null
                 }
               </Tabs>
             </Paper>
@@ -461,7 +456,7 @@ function SlideList(props) {
                           height: 152,
                           width: 240,
                           borderRadius: 5
-                        }} src={slide.image_path + "t"} alt="Slide"/>
+                        }} alt="Slide"/>
                         <span className={classes.slidePrice}>
                           €{slide.price}
                         </span>
@@ -469,7 +464,7 @@ function SlideList(props) {
                     </CardContent>
                   </Card>
                 </Grid>
-              )) : <></>
+              )) : null
             }
         </InfiniteScroll>
       </Grid>
