@@ -227,7 +227,27 @@ export default function Header(props) {
               >
                 <MenuIcon/>
               </IconButton>
-              <Button className={classes.siteTitle} color="inherit">
+              <Button onClick={() => {
+                props.setSelectedTab(0)
+                props.setSelectedSubTab({
+                  barStyle: {
+                    opacity: 0,
+                    zIndex: -1,
+                    position: "absolute"
+                  },
+                  tab: 0
+                })
+                props.setSubCategoriesState({
+                  ...props.subCategoriesState,
+                  count: 0,
+                  current: ""
+                })
+                props.setScrollState({
+                  items: props.initialSlides,
+                  hasMore: props.scrollState.hasMore,
+                  part: props.scrollState.part
+                })
+              }} className={classes.siteTitle} color="inherit">
                 SlidesAeroService
               </Button>
             </div>

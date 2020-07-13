@@ -13,26 +13,48 @@ function App() {
     alert("Cookies must be enabled to use this website.")
     window.location = "/"
   }
+  const [initialSlides, setInitialSlides] = useState(null)
+  const [scrollState, setScrollState] = useState({
+    items: Array.from({ length: 0 }),
+    hasMore: true,
+    part: 0
+  })
   const [categoriesState, setCategoriesState] = useState(null)
   const [subCategoriesState, setSubCategoriesState] = useState({
     count: 0,
     current: ""
   })
+  const [selectedTab, setSelectedTab] = useState(0)
+  const [selectedSubTab, setSelectedSubTab] = useState({
+    barStyle: {
+      opacity: 0,
+      zIndex: -1,
+      position: "absolute"
+    },
+    tab: 0
+  })
+  const props = {
+    endpoint: endpoint,
+    initialSlides: initialSlides,
+    setInitialSlides: setInitialSlides,
+    scrollState: scrollState,
+    setScrollState: setScrollState,
+    categoriesState: categoriesState,
+    setCategoriesState: setCategoriesState,
+    subCategoriesState: subCategoriesState,
+    setSubCategoriesState: setSubCategoriesState,
+    selectedTab: selectedTab,
+    setSelectedTab: setSelectedTab,
+    selectedSubTab: selectedSubTab,
+    setSelectedSubTab: setSelectedSubTab
+  }
   return (
     <div className="App">
       <Header
-        endpoint={endpoint}
-        categoriesState={categoriesState}
-        setCategoriesState={setCategoriesState}
-        subCategoriesState={subCategoriesState}
-        setSubCategoriesState={setSubCategoriesState}
+        {...props}
       />
       <SlideList
-        endpoint={endpoint}
-        categoriesState={categoriesState}
-        setCategoriesState={setCategoriesState}
-        subCategoriesState={subCategoriesState}
-        setSubCategoriesState={setSubCategoriesState}
+        {...props}
       />
       <MUICookieConsent 
         cookieName="sas-cookies"

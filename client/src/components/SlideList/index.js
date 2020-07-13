@@ -157,11 +157,7 @@ const styles = (theme) => ({
 function SlideList(props) {
   const {classes} = props
   const [slidesCountState, setSlidesCountState] = useState(0)
-  const [scrollState, setScrollState] = useState({
-    items: Array.from({length: 0}),
-    hasMore: true,
-    part: 0
-  })
+  
   useEffect(() => {
     const fetchSlidesCount = async () => {
       const result = await axios(props.endpoint + "/slides/count")
@@ -175,11 +171,12 @@ function SlideList(props) {
     fetchCategories()
     const fetchSlides = async () => {
       const result = await axios(props.endpoint + "/slides?limit=56&orderby=created_at&order=desc")
-      setScrollState({
+      props.setScrollState({
         items: result.data.data,
         hasMore: true,
         part: 1
       })
+      props.setInitialSlides(result.data.data)
     }
     fetchSlides()
   }, [])
@@ -207,11 +204,11 @@ function SlideList(props) {
   const handleAscdescClose = () => {
     setAscDescState(null)
   }
-  const [selectedTab, setSelectedTab] = useState(0)
+  
   const handleCategoryChange = async (event, i) => {
-    setSelectedTab(i)
+    props.setSelectedTab(i)
     if (i > 0) {
-      setSelectedSubTab({
+      props.setSelectedSubTab({
         barstyle: {
           opacity: 1,
           zIndex: 0,
@@ -228,7 +225,7 @@ function SlideList(props) {
       })
       if (!('slides' in props.categoriesState[i-1])) {
         props.categoriesState[i-1].slides = []
-        scrollState.items.forEach(slide => {
+        props.scrollState.items.forEach(slide => {
           if (slide.category_id === props.categoriesState[i-1].id) {
             props.categoriesState[i-1].slides.push(slide)
           }
@@ -238,13 +235,13 @@ function SlideList(props) {
         const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i-1].id + "&limit=" + (56 - props.categoriesState[i-1].slides.length).toString() + "&offset=" + props.categoriesState[i-1].slides.length)
         props.categoriesState[i-1].slides = props.categoriesState[i-1].slides.concat(fillSlides.data.data)
       }
-      setScrollState({
+      props.setScrollState({
         items: props.categoriesState[i-1].slides,
-        hasMore: scrollState.hasMore,
-        part: scrollState.part
+        hasMore: props.scrollState.hasMore,
+        part: props.scrollState.part
       })
     } else {
-      setSelectedSubTab({
+      props.setSelectedSubTab({
         barStyle: {
           opacity: 0,
           zIndex: -1,
@@ -252,26 +249,22 @@ function SlideList(props) {
         },
         tab: 0
       })
-       props.setSubCategoriesState({
+      props.setSubCategoriesState({
         ...props.subCategoriesState,
         count: 0,
         current: ""
       })
-      // remove all slides, fetch without params and add to list
+      props.setScrollState({
+        items: props.initialSlides,
+        hasMore: props.scrollState.hasMore,
+        part: props.scrollState.part
+      })
     }
     // replace state to change route for next() function on infinite scroll
   }
-  const [selectedSubTab, setSelectedSubTab] = useState({
-    barStyle: {
-      opacity: 0,
-      zIndex: -1,
-      position: "absolute"
-    },
-    tab: 0
-  })
   const handleSubCategoryChange = async (event, i) => {
-    setSelectedSubTab({
-      barStyle: selectedSubTab.barStyle,
+    props.setSelectedSubTab({
+      barStyle: props.selectedSubTab.barStyle,
       tab: i
     })
     if (i > 0) {
@@ -296,7 +289,7 @@ function SlideList(props) {
           >
             <Paper className={classes.paper} square>
               <Tabs
-                value={selectedTab}
+                value={props.selectedTab}
                 indicatorColor="primary"
                 textColor="primary"
                 onChange={handleCategoryChange}
@@ -385,11 +378,11 @@ function SlideList(props) {
             justify="space-between"
             className={classes.subToolbar}
             item
-            style={selectedSubTab.barStyle}
+            style={props.selectedSubTab.barStyle}
           >
             <Paper className={classes.paper} square>
               <Tabs
-                value={selectedSubTab.tab}
+                value={props.selectedSubTab.tab}
                 indicatorColor="primary"
                 textColor="primary"
                 onChange={handleSubCategoryChange}
@@ -399,7 +392,7 @@ function SlideList(props) {
               >
                 <Tab key={0} label={"All " + props.subCategoriesState.current + " (" + props.subCategoriesState.count + ")"}/>
                 {
-                  props.subCategoriesState !== null && props.subCategoriesState[selectedTab] !== undefined ? props.subCategoriesState[selectedTab].map((category, i) => (
+                  props.subCategoriesState !== null && props.subCategoriesState[props.selectedTab] !== undefined ? props.subCategoriesState[props.selectedTab].map((category, i) => (
                     <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
                   )) : null
                 }
@@ -408,13 +401,13 @@ function SlideList(props) {
           </Grid>
         </Grid>
         <InfiniteScroll
-          dataLength={scrollState.items.length}
+          dataLength={props.scrollState.items.length}
           next={() => {
-            if (scrollState.items.length >= slidesCountState) {
-              setScrollState({
-                items: scrollState.items,
+            if (props.scrollState.items.length >= slidesCountState) {
+              props.setScrollState({
+                items: props.scrollState.items,
                 hasMore: false,
-                part: scrollState.part
+                part: props.scrollState.part
               })
               return
             }
@@ -422,22 +415,22 @@ function SlideList(props) {
               let result = []
               const fetchMoreSlides = async () => {
                 result = await axios(
-                  props.endpoint + "/slides?limit=56&offset=" + (56 * scrollState.part).toString() + "&orderby=created_at&order=desc",
+                  props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc",
                 )
-                setScrollState({
-                  items: scrollState.items.concat(result.data.data),
+                props.setScrollState({
+                  items: props.scrollState.items.concat(result.data.data),
                   hasMore: true,
-                  part: scrollState.part + 1
+                  part: props.scrollState.part + 1
                 })
               }
               fetchMoreSlides()
             }, 500)
           }}
-          hasMore={scrollState.hasMore}
+          hasMore={props.scrollState.hasMore}
           className={classes.infiniteScroll}
           >
             {
-              scrollState.items !== null ? scrollState.items.map((slide, i) => (
+              props.scrollState.items !== null ? props.scrollState.items.map((slide, i) => (
                 <Grid key={i} item>
                   <Card style={{
                       height: 240,
