@@ -6,8 +6,6 @@ import Header from "./components/Header"
 import SlideList from "./components/SlideList"
 import MUICookieConsent from 'material-ui-cookie-consent'
 
-const endpoint = "http://localhost:8080/api/v1"
-
 function App() {
   if (!navigator.cookieEnabled) {
     alert("Cookies must be enabled to use this website.")
@@ -34,7 +32,7 @@ function App() {
     tab: 0
   })
   const props = {
-    endpoint: endpoint,
+    endpoint: "http://localhost:8080/api/v1",
     initialSlides: initialSlides,
     setInitialSlides: setInitialSlides,
     scrollState: scrollState,

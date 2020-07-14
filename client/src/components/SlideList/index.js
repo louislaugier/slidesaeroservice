@@ -157,7 +157,6 @@ const styles = (theme) => ({
 function SlideList(props) {
   const {classes} = props
   const [slidesCountState, setSlidesCountState] = useState(0)
-  
   useEffect(() => {
     const fetchSlidesCount = async () => {
       const result = await axios(props.endpoint + "/slides/count")
@@ -176,7 +175,9 @@ function SlideList(props) {
         hasMore: true,
         part: 1
       })
-      props.setInitialSlides(result.data.data)
+      props.setInitialSlides({
+        all: result.data.data
+      })
     }
     fetchSlides()
   }, [])
@@ -204,7 +205,6 @@ function SlideList(props) {
   const handleAscdescClose = () => {
     setAscDescState(null)
   }
-  
   const handleCategoryChange = async (event, i) => {
     props.setSelectedTab(i)
     if (i > 0) {
@@ -216,29 +216,33 @@ function SlideList(props) {
         },
         tab: 0
       })
-      const category = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
+      const subCategories = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i - 1].id)
       props.setSubCategoriesState({
         ...props.subCategoriesState,
-        current: props.categoriesState[i-1].title,
-        count: props.categoriesState[i-1].slides_count,
-        [i]: category.data.data
+        current: props.categoriesState[i - 1].title,
+        count: props.categoriesState[i - 1].slides_count,
+        [i]: subCategories.data.data
       })
-      if (!('slides' in props.categoriesState[i-1])) {
-        props.categoriesState[i-1].slides = []
+      if (!('slides' in props.categoriesState[i - 1])) {
+        props.categoriesState[i - 1].slides = []
         props.scrollState.items.forEach(slide => {
-          if (slide.category_id === props.categoriesState[i-1].id) {
-            props.categoriesState[i-1].slides.push(slide)
+          if (slide.category_id === props.categoriesState[i - 1].id) {
+            props.categoriesState[i - 1].slides.push(slide)
           }
         })
       }
-      if (props.categoriesState[i-1].slides.length < 56) {
-        const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i-1].id + "&limit=" + (56 - props.categoriesState[i-1].slides.length).toString() + "&offset=" + props.categoriesState[i-1].slides.length)
-        props.categoriesState[i-1].slides = props.categoriesState[i-1].slides.concat(fillSlides.data.data)
+      if (props.categoriesState[i - 1].slides.length < 56) {
+        const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i - 1].id + "&limit=" + (56 - props.categoriesState[i - 1].slides.length).toString() + "&offset=" + props.categoriesState[i - 1].slides.length)
+        props.categoriesState[i - 1].slides = props.categoriesState[i - 1].slides.concat(fillSlides.data.data)
       }
       props.setScrollState({
-        items: props.categoriesState[i-1].slides,
-        hasMore: props.scrollState.hasMore,
-        part: props.scrollState.part
+        items: props.categoriesState[i - 1].slides,
+        hasMore: props.categoriesState[i - 1].slides_count > props.categoriesState[i - 1].slides.length ? true : false,
+        part: Math.ceil(props.categoriesState[i - 1].slides.length / 56)
+      })
+      props.setInitialSlides({
+        ...props.initialSlides,
+        [i - 1]: props.categoriesState[i - 1].slides
       })
     } else {
       props.setSelectedSubTab({
@@ -255,12 +259,11 @@ function SlideList(props) {
         current: ""
       })
       props.setScrollState({
-        items: props.initialSlides,
-        hasMore: props.scrollState.hasMore,
-        part: props.scrollState.part
+        items: props.initialSlides.all,
+        hasMore: true,
+        part: 1
       })
     }
-    // replace state to change route for next() function on infinite scroll
   }
   const handleSubCategoryChange = async (event, i) => {
     props.setSelectedSubTab({
@@ -268,13 +271,33 @@ function SlideList(props) {
       tab: i
     })
     if (i > 0) {
-      // if (!(props.subCategoriesState !== null && props.subCategoriesState[i-1] !== undefined)) {
-      //   const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i-1].id)
-      //   props.setSubCategoriesState({
-      //     ...props.subCategoriesState,
-      //     [i]: result.data.data
-      //   })
-      // }
+      if (!("slides" in props.subCategoriesState[props.selectedTab][i - 1])) {
+        props.subCategoriesState[props.selectedTab][i - 1].slides = []
+        props.scrollState.items.forEach(slide => {
+          if (slide.subcategory_id === props.subCategoriesState[props.selectedTab][i - 1].id) {
+            props.subCategoriesState[props.selectedTab][i - 1].slides.push(slide)
+          }
+        })
+      }
+      if (props.subCategoriesState[props.selectedTab][i - 1].slides.length < 56) {
+        const fillSlides = await axios(props.endpoint + "/slides?subcategory_id=" + props.subCategoriesState[props.selectedTab][i - 1].id + "&limit=" + (56 - props.subCategoriesState[props.selectedTab][i - 1].slides.length).toString() + "&offset=" + props.subCategoriesState[props.selectedTab][i - 1].slides.length)
+        props.subCategoriesState[props.selectedTab][i - 1].slides = props.subCategoriesState[props.selectedTab][i - 1].slides.concat(fillSlides.data.data)
+      }
+      props.setScrollState({
+        items: props.subCategoriesState[props.selectedTab][i - 1].slides,
+        hasMore: props.subCategoriesState[props.selectedTab][i - 1].slides_count > props.subCategoriesState[props.selectedTab][i - 1].slides.length ? true : false,
+        part: Math.ceil(props.subCategoriesState[props.selectedTab][i - 1].slides.length / 56)
+      })
+    } else {
+      props.setSelectedSubTab({
+        barStyle: props.selectedSubTab.barStyle,
+        tab: 0
+      })
+      props.setScrollState({
+        items: props.initialSlides[props.selectedTab-1],
+        hasMore: props.categoriesState[props.selectedTab - 1].slides_count > 56 ? true : false,
+        part: 1
+      })
     }
   }
   return (
@@ -339,7 +362,6 @@ function SlideList(props) {
               >
                 <MenuItem onClick={handleOrderbyClose}>Publish date</MenuItem>
                 <MenuItem onClick={handleOrderbyClose}>Price</MenuItem>
-                <MenuItem onClick={handleOrderbyClose}>Origin date</MenuItem>
                 <MenuItem onClick={handleOrderbyClose}>Rating</MenuItem>
               </Menu>
               <IconButton
@@ -401,9 +423,24 @@ function SlideList(props) {
           </Grid>
         </Grid>
         <InfiniteScroll
-          dataLength={props.scrollState.items.length}
+          dataLength={() => {
+            if (props.selectedTab > 0) {
+              return props.categoriesState[props.selectedTab - 1].slides_count
+            }
+            return slidesCountState
+          }}
           next={() => {
-            if (props.scrollState.items.length >= slidesCountState) {
+            let count = slidesCountState
+            let category = ""
+            if (props.selectedTab > 0) {
+              count = props.categoriesState[props.selectedTab - 1].slides_count
+              category = "&category_id=" + props.categoriesState[props.selectedTab - 1].id
+              if (props.selectedSubTab.tab > 0) {
+                count = props.subCategoriesState[props.selectedTab][props.selectedSubTab.tab - 1].slides_count
+                category = "&subcategory_id=" + props.subCategoriesState[props.selectedTab][props.selectedSubTab.tab - 1].id
+              }
+            }
+            if (props.scrollState.items.length >= count)  {
               props.setScrollState({
                 items: props.scrollState.items,
                 hasMore: false,
@@ -415,7 +452,7 @@ function SlideList(props) {
               let result = []
               const fetchMoreSlides = async () => {
                 result = await axios(
-                  props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc",
+                  props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc" + category,
                 )
                 props.setScrollState({
                   items: props.scrollState.items.concat(result.data.data),

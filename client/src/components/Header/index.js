@@ -228,6 +228,8 @@ export default function Header(props) {
                 <MenuIcon/>
               </IconButton>
               <Button onClick={() => {
+                window.scrollTo({top: 0, behavior: "smooth"})
+                setMenuState({ ...menuState, ["left"]: false })
                 props.setSelectedTab(0)
                 props.setSelectedSubTab({
                   barStyle: {

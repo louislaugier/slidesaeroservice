@@ -45,7 +45,7 @@ body>.MuiDrawer-root.MuiDrawer-modal{
 
 .infinite-scroll-component {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   flex-wrap: wrap;
   width: calc(100% + 24px);
   margin: -12px
