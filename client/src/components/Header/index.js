@@ -113,15 +113,45 @@ export default function Header(props) {
     })
   }
   const [subCategoriesNestState, setSubCategoriesNestState] = React.useState(subCategoriesNests)
-  const handleSubCategoriesNestClick = (category, i) => async () => {
-    if (!(props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined)) {
-      const result = await axios(props.endpoint + "/slides/categories?parent_category_id=" + category.id)
-      props.setSubCategoriesState({
-        ...props.subCategoriesState,
-        [i]: result.data.data
+  const handleSubCategoriesNestClick = (event, i) => async () => {
+    setSubCategoriesNestState({...subCategoriesNestState, [i]: !subCategoriesNestState[i]})
+    const subCategories = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i].id)
+    props.setSubCategoriesState({
+      ...props.subCategoriesState,
+      current: props.categoriesState[i].title,
+      count: props.categoriesState[i].slides_count,
+      [i]: subCategories.data.data
+    })
+    props.setSelectedTab(i + 1)
+    props.setSelectedSubTab({
+      barstyle: {
+        opacity: 1,
+        zIndex: 0,
+        position: "relative",
+      },
+      tab: 0
+    })
+    if (!('slides' in props.categoriesState[i])) {
+      props.categoriesState[i].slides = []
+      props.scrollState.items.forEach(slide => {
+        if (slide.category_id === props.categoriesState[i].id) {
+          props.categoriesState[i].slides.push(slide)
+        }
       })
     }
-    setSubCategoriesNestState({...subCategoriesNestState, [i]: !subCategoriesNestState[i]})
+    if (props.categoriesState[i].slides.length < 56) {
+      const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i].id + "&limit=" + (56 - props.categoriesState[i].slides.length).toString() + "&offset=" + props.categoriesState[i].slides.length)
+      props.categoriesState[i].slides = props.categoriesState[i].slides.concat(fillSlides.data.data)
+    }
+    props.setScrollState({
+      items: props.categoriesState[i].slides,
+      hasMore: props.categoriesState[i].slides_count > props.categoriesState[i].slides.length ? true : false,
+      part: Math.ceil(props.categoriesState[i].slides.length / 56)
+    })
+    props.setInitialSlides({
+      ...props.initialSlides,
+      [i]: props.categoriesState[i].slides
+    })
   }
   const [accountButtonState, setAccountButtonState] = React.useState(null)
   const handleProfileClick = (event) => {
@@ -137,6 +167,30 @@ export default function Header(props) {
   const handleMoreClose = () => {
     setMoreButtonState(null)
   }
+  const handleSubCategoryChange = async (event, i) => {
+    props.setSelectedSubTab({
+      barStyle: props.selectedSubTab.barStyle,
+      tab: i + 1
+    })
+    if (!("slides" in props.subCategoriesState[props.selectedTab][i])) {
+      props.subCategoriesState[props.selectedTab][i].slides = []
+      props.scrollState.items.forEach(slide => {
+        if (slide.subcategory_id === props.subCategoriesState[props.selectedTab][i].id) {
+          props.subCategoriesState[props.selectedTab][i].slides.push(slide)
+        }
+      })
+    }
+    if (props.subCategoriesState[props.selectedTab][i].slides.length < 56) {
+      const fillSlides = await axios(props.endpoint + "/slides?subcategory_id=" + props.subCategoriesState[props.selectedTab][i].id + "&limit=" + (56 - props.subCategoriesState[props.selectedTab][i].slides.length).toString() + "&offset=" + props.subCategoriesState[props.selectedTab][i].slides.length)
+      props.subCategoriesState[props.selectedTab][i].slides = props.subCategoriesState[props.selectedTab][i].slides.concat(fillSlides.data.data)
+    }
+    props.setScrollState({
+      items: props.subCategoriesState[props.selectedTab][i].slides,
+      hasMore: props.subCategoriesState[props.selectedTab][i].slides_count > props.subCategoriesState[props.selectedTab][i].slides.length ? true : false,
+      part: Math.ceil(props.subCategoriesState[props.selectedTab][i].slides.length / 56)
+    })
+  }
+  console.log(props.subCategoriesState)
   const classes = useStyles()
   const list = () => (
     <div
@@ -144,7 +198,7 @@ export default function Header(props) {
       role="presentation"
     >
       <List>
-        <ListItem button key={"home"}>
+        <ListItem onClick={update} button key={"home"}>
           <ListItemIcon><HomeIcon/></ListItemIcon>
           <ListItemText primary={"Home"}/>
         </ListItem>
@@ -191,7 +245,7 @@ export default function Header(props) {
           {
             props.categoriesState !== null ? props.categoriesState.map((category, i) => (
               <>
-                <ListItem key={i} onClick={handleSubCategoriesNestClick(category, i)} button className={classes.nested}>
+                <ListItem key={i + category.title} onClick={handleSubCategoriesNestClick(category, i)} button className={classes.nested}>
                   <ListItemText primary={category.title}/>
                   {subCategoriesNestState[i] ? <ExpandLess/> : <ExpandMore/>}
                 </ListItem>
@@ -199,7 +253,7 @@ export default function Header(props) {
                   <List component="div" disablePadding>
                     {
                       props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined ? props.subCategoriesState[i].map((subCategory) => (
-                        <ListItem key={i} button className={classes.nested2}>
+                        <ListItem onClick={handleSubCategoryChange} key={i + subCategory.id} button className={classes.nested2}>
                           <ListItemText className={classes.nested2Text} primary={subCategory.title}/>
                         </ListItem>
                       )) : <></>
@@ -213,6 +267,42 @@ export default function Header(props) {
       </Collapse>
     </div>
   )
+  const update = async () => {
+    window.scrollTo({top: 0, behavior: "smooth"})
+    setMenuState({ ...menuState, ["left"]: false })
+    props.setSelectedTab(0)
+    props.setSelectedSubTab({
+      barStyle: {
+        opacity: 0,
+        zIndex: -1,
+        position: "absolute"
+      },
+      tab: 0
+    })
+    props.setSubCategoriesState({
+      ...props.subCategoriesState,
+      count: 0,
+      current: ""
+    })
+    props.setScrollState({
+      items: props.initialSlides.all,
+      hasMore: true,
+      part: 1
+    })
+    let result = await axios(props.endpoint + "/slides/count")
+    props.setSlidesCountState(result.data.data)
+    result = await axios(props.endpoint + "/slides/categories?is_subcategory=false")
+    props.setCategoriesState(result.data.data)
+    result = await axios(props.endpoint + "/slides?limit=56&orderby=created_at&order=desc")
+    props.setScrollState({
+      items: result.data.data,
+      hasMore: true,
+      part: 1
+    })
+    props.setInitialSlides({
+      all: result.data.data
+    })
+  }
   return (
     <>
       <div className={classes.root}>
@@ -227,29 +317,7 @@ export default function Header(props) {
               >
                 <MenuIcon/>
               </IconButton>
-              <Button onClick={() => {
-                window.scrollTo({top: 0, behavior: "smooth"})
-                setMenuState({ ...menuState, ["left"]: false })
-                props.setSelectedTab(0)
-                props.setSelectedSubTab({
-                  barStyle: {
-                    opacity: 0,
-                    zIndex: -1,
-                    position: "absolute"
-                  },
-                  tab: 0
-                })
-                props.setSubCategoriesState({
-                  ...props.subCategoriesState,
-                  count: 0,
-                  current: ""
-                })
-                props.setScrollState({
-                  items: props.initialSlides,
-                  hasMore: props.scrollState.hasMore,
-                  part: props.scrollState.part
-                })
-              }} className={classes.siteTitle} color="inherit">
+              <Button onClick={update} className={classes.siteTitle} color="inherit">
                 SlidesAeroService
               </Button>
             </div>

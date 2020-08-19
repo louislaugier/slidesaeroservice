@@ -11,6 +11,7 @@ function App() {
     alert("Cookies must be enabled to use this website.")
     window.location = "/"
   }
+  const [slidesCountState, setSlidesCountState] = useState(0)
   const [initialSlides, setInitialSlides] = useState(null)
   const [scrollState, setScrollState] = useState({
     items: Array.from({ length: 0 }),
@@ -31,8 +32,11 @@ function App() {
     },
     tab: 0
   })
+  
   const props = {
     endpoint: "http://localhost:8080/api/v1",
+    slidesCountState: slidesCountState,
+    setSlidesCountState: setSlidesCountState,
     initialSlides: initialSlides,
     setInitialSlides: setInitialSlides,
     scrollState: scrollState,

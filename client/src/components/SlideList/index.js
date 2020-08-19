@@ -156,11 +156,10 @@ const styles = (theme) => ({
 
 function SlideList(props) {
   const {classes} = props
-  const [slidesCountState, setSlidesCountState] = useState(0)
   useEffect(() => {
     const fetchSlidesCount = async () => {
       const result = await axios(props.endpoint + "/slides/count")
-      setSlidesCountState(result.data.data)
+      props.setSlidesCountState(result.data.data)
     }
     fetchSlidesCount()
     const fetchCategories = async () => {
@@ -320,7 +319,7 @@ function SlideList(props) {
                 variant="scrollable"
                 scrollButtons="on"
               >
-                <Tab key={0} label={"All (" + slidesCountState + ")"}/>
+                <Tab key={0} label={"All (" + props.slidesCountState + ")"}/>
                 {
                   props.categoriesState !== null ? props.categoriesState.map((category, i) => (
                     <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
@@ -427,10 +426,10 @@ function SlideList(props) {
             if (props.selectedTab > 0) {
               return props.categoriesState[props.selectedTab - 1].slides_count
             }
-            return slidesCountState
+            return props.slidesCountState
           }}
           next={() => {
-            let count = slidesCountState
+            let count = props.slidesCountState
             let category = ""
             if (props.selectedTab > 0) {
               count = props.categoriesState[props.selectedTab - 1].slides_count
@@ -486,7 +485,7 @@ function SlideList(props) {
                           height: 152,
                           width: 240,
                           borderRadius: 5
-                        }} alt="Slide"/>
+                        }} src={slide.image_path} alt="Slide"/>
                         <span className={classes.slidePrice}>
                           €{slide.price}
                         </span>
