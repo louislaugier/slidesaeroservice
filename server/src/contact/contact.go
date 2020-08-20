@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
@@ -20,6 +21,9 @@ type message struct {
 
 // POST message
 func POST() func(c *gin.Context) {
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
 	return func(c *gin.Context) {
 		m := &message{}
 		payload, _ := c.GetRawData()

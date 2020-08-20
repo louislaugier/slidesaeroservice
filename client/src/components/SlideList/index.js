@@ -179,6 +179,7 @@ function SlideList(props) {
       })
     }
     fetchSlides()
+    // eslint-disable-next-line
   }, [])
   const [slideTypeState, setSlideTypeState] = useState("all")
   const handleSlideTypeChange = (event) => {
@@ -204,101 +205,7 @@ function SlideList(props) {
   const handleAscdescClose = () => {
     setAscDescState(null)
   }
-  const handleCategoryChange = async (event, i) => {
-    props.setSelectedTab(i)
-    if (i > 0) {
-      props.setSelectedSubTab({
-        barstyle: {
-          opacity: 1,
-          zIndex: 0,
-          position: "relative",
-        },
-        tab: 0
-      })
-      const subCategories = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i - 1].id)
-      props.setSubCategoriesState({
-        ...props.subCategoriesState,
-        current: props.categoriesState[i - 1].title,
-        count: props.categoriesState[i - 1].slides_count,
-        [i]: subCategories.data.data
-      })
-      if (!('slides' in props.categoriesState[i - 1])) {
-        props.categoriesState[i - 1].slides = []
-        props.scrollState.items.forEach(slide => {
-          if (slide.category_id === props.categoriesState[i - 1].id) {
-            props.categoriesState[i - 1].slides.push(slide)
-          }
-        })
-      }
-      if (props.categoriesState[i - 1].slides.length < 56) {
-        const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i - 1].id + "&limit=" + (56 - props.categoriesState[i - 1].slides.length).toString() + "&offset=" + props.categoriesState[i - 1].slides.length)
-        props.categoriesState[i - 1].slides = props.categoriesState[i - 1].slides.concat(fillSlides.data.data)
-      }
-      props.setScrollState({
-        items: props.categoriesState[i - 1].slides,
-        hasMore: props.categoriesState[i - 1].slides_count > props.categoriesState[i - 1].slides.length ? true : false,
-        part: Math.ceil(props.categoriesState[i - 1].slides.length / 56)
-      })
-      props.setInitialSlides({
-        ...props.initialSlides,
-        [i - 1]: props.categoriesState[i - 1].slides
-      })
-    } else {
-      props.setSelectedSubTab({
-        barStyle: {
-          opacity: 0,
-          zIndex: -1,
-          position: "absolute"
-        },
-        tab: 0
-      })
-      props.setSubCategoriesState({
-        ...props.subCategoriesState,
-        count: 0,
-        current: ""
-      })
-      props.setScrollState({
-        items: props.initialSlides.all,
-        hasMore: true,
-        part: 1
-      })
-    }
-  }
-  const handleSubCategoryChange = async (event, i) => {
-    props.setSelectedSubTab({
-      barStyle: props.selectedSubTab.barStyle,
-      tab: i
-    })
-    if (i > 0) {
-      if (!("slides" in props.subCategoriesState[props.selectedTab][i - 1])) {
-        props.subCategoriesState[props.selectedTab][i - 1].slides = []
-        props.scrollState.items.forEach(slide => {
-          if (slide.subcategory_id === props.subCategoriesState[props.selectedTab][i - 1].id) {
-            props.subCategoriesState[props.selectedTab][i - 1].slides.push(slide)
-          }
-        })
-      }
-      if (props.subCategoriesState[props.selectedTab][i - 1].slides.length < 56) {
-        const fillSlides = await axios(props.endpoint + "/slides?subcategory_id=" + props.subCategoriesState[props.selectedTab][i - 1].id + "&limit=" + (56 - props.subCategoriesState[props.selectedTab][i - 1].slides.length).toString() + "&offset=" + props.subCategoriesState[props.selectedTab][i - 1].slides.length)
-        props.subCategoriesState[props.selectedTab][i - 1].slides = props.subCategoriesState[props.selectedTab][i - 1].slides.concat(fillSlides.data.data)
-      }
-      props.setScrollState({
-        items: props.subCategoriesState[props.selectedTab][i - 1].slides,
-        hasMore: props.subCategoriesState[props.selectedTab][i - 1].slides_count > props.subCategoriesState[props.selectedTab][i - 1].slides.length ? true : false,
-        part: Math.ceil(props.subCategoriesState[props.selectedTab][i - 1].slides.length / 56)
-      })
-    } else {
-      props.setSelectedSubTab({
-        barStyle: props.selectedSubTab.barStyle,
-        tab: 0
-      })
-      props.setScrollState({
-        items: props.initialSlides[props.selectedTab-1],
-        hasMore: props.categoriesState[props.selectedTab - 1].slides_count > 56 ? true : false,
-        part: 1
-      })
-    }
-  }
+
   return (
     <Grid container justify="center" className={classes.container}>
       <Grid item xs={12}>
@@ -314,7 +221,7 @@ function SlideList(props) {
                 value={props.selectedTab}
                 indicatorColor="primary"
                 textColor="primary"
-                onChange={handleCategoryChange}
+                onChange={props.handleCategoryChange}
                 aria-label="slide-type"
                 variant="scrollable"
                 scrollButtons="on"
@@ -406,7 +313,7 @@ function SlideList(props) {
                 value={props.selectedSubTab.tab}
                 indicatorColor="primary"
                 textColor="primary"
-                onChange={handleSubCategoryChange}
+                onChange={props.handleSubCategoryChange}
                 aria-label="slide-type"
                 variant="scrollable"
                 scrollButtons="on"

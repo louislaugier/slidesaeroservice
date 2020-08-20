@@ -71,8 +71,8 @@ const useStyles = makeStyles((theme) => ({
   nested: {
     paddingLeft: theme.spacing(6)
   },
-  nested2: {
-    paddingLeft: theme.spacing(10)
+  nested2Text: {
+    paddingLeft: theme.spacing(8)
   },
   nestedCateg: {
     paddingLeft: 0
@@ -102,56 +102,26 @@ export default function Header(props) {
   const handleMyAccountNestClick = () => {
     setMyAccountNestState(!myAccountNestState)
   }
-  const [categoriesNestState, setCategoriesNestState] = React.useState(false)
+  const [categoriesMenuNestState, setCategoriesMenuNestState] = React.useState(false)
   const handleCategoriesNestClick = () => {
-    setCategoriesNestState(!categoriesNestState)
+    setCategoriesMenuNestState(!categoriesMenuNestState)
   }
   const subCategoriesNests = {}
   if (props.categoriesState != null) {
-    props.categoriesState.forEach((category, i) => {
+    props.categoriesState.forEach((c, i) => {
       subCategoriesNests.i = false
     })
   }
-  const [subCategoriesNestState, setSubCategoriesNestState] = React.useState(subCategoriesNests)
-  const handleSubCategoriesNestClick = (event, i) => async () => {
-    setSubCategoriesNestState({...subCategoriesNestState, [i]: !subCategoriesNestState[i]})
-    const subCategories = await axios(props.endpoint + "/slides/categories?parent_category_id=" + props.categoriesState[i].id)
-    props.setSubCategoriesState({
-      ...props.subCategoriesState,
-      current: props.categoriesState[i].title,
-      count: props.categoriesState[i].slides_count,
-      [i]: subCategories.data.data
-    })
-    props.setSelectedTab(i + 1)
-    props.setSelectedSubTab({
-      barstyle: {
-        opacity: 1,
-        zIndex: 0,
-        position: "relative",
-      },
-      tab: 0
-    })
-    if (!('slides' in props.categoriesState[i])) {
-      props.categoriesState[i].slides = []
-      props.scrollState.items.forEach(slide => {
-        if (slide.category_id === props.categoriesState[i].id) {
-          props.categoriesState[i].slides.push(slide)
-        }
-      })
+  const [categoryNestState, setCategoryNestState] = React.useState(subCategoriesNests)
+  const handleCategoryNestClick = (i) => async () => {
+    if (!categoryNestState[i + 1]) {
+      props.handleCategoryChange(null, i + 1)
     }
-    if (props.categoriesState[i].slides.length < 56) {
-      const fillSlides = await axios(props.endpoint + "/slides?category_id=" + props.categoriesState[i].id + "&limit=" + (56 - props.categoriesState[i].slides.length).toString() + "&offset=" + props.categoriesState[i].slides.length)
-      props.categoriesState[i].slides = props.categoriesState[i].slides.concat(fillSlides.data.data)
-    }
-    props.setScrollState({
-      items: props.categoriesState[i].slides,
-      hasMore: props.categoriesState[i].slides_count > props.categoriesState[i].slides.length ? true : false,
-      part: Math.ceil(props.categoriesState[i].slides.length / 56)
-    })
-    props.setInitialSlides({
-      ...props.initialSlides,
-      [i]: props.categoriesState[i].slides
-    })
+    setCategoryNestState({...categoryNestState, [i + 1]: !categoryNestState[i + 1]})
+  }
+  const handleSubCategoryClick = (i) => () => {
+    setMenuState({ ...menuState, left: false })
+    props.handleSubCategoryChange(null, i + 1)
   }
   const [accountButtonState, setAccountButtonState] = React.useState(null)
   const handleProfileClick = (event) => {
@@ -167,30 +137,6 @@ export default function Header(props) {
   const handleMoreClose = () => {
     setMoreButtonState(null)
   }
-  const handleSubCategoryChange = async (event, i) => {
-    props.setSelectedSubTab({
-      barStyle: props.selectedSubTab.barStyle,
-      tab: i + 1
-    })
-    if (!("slides" in props.subCategoriesState[props.selectedTab][i])) {
-      props.subCategoriesState[props.selectedTab][i].slides = []
-      props.scrollState.items.forEach(slide => {
-        if (slide.subcategory_id === props.subCategoriesState[props.selectedTab][i].id) {
-          props.subCategoriesState[props.selectedTab][i].slides.push(slide)
-        }
-      })
-    }
-    if (props.subCategoriesState[props.selectedTab][i].slides.length < 56) {
-      const fillSlides = await axios(props.endpoint + "/slides?subcategory_id=" + props.subCategoriesState[props.selectedTab][i].id + "&limit=" + (56 - props.subCategoriesState[props.selectedTab][i].slides.length).toString() + "&offset=" + props.subCategoriesState[props.selectedTab][i].slides.length)
-      props.subCategoriesState[props.selectedTab][i].slides = props.subCategoriesState[props.selectedTab][i].slides.concat(fillSlides.data.data)
-    }
-    props.setScrollState({
-      items: props.subCategoriesState[props.selectedTab][i].slides,
-      hasMore: props.subCategoriesState[props.selectedTab][i].slides_count > props.subCategoriesState[props.selectedTab][i].slides.length ? true : false,
-      part: Math.ceil(props.subCategoriesState[props.selectedTab][i].slides.length / 56)
-    })
-  }
-  console.log(props.subCategoriesState)
   const classes = useStyles()
   const list = () => (
     <div
@@ -198,21 +144,21 @@ export default function Header(props) {
       role="presentation"
     >
       <List>
-        <ListItem onClick={update} button key={"home"}>
+        <ListItem onClick={update} button>
           <ListItemIcon><HomeIcon/></ListItemIcon>
-          <ListItemText primary={"Home"}/>
+          <ListItemText primary="Home"/>
         </ListItem>
-        <ListItem button key={"auctions"}>
+        <ListItem button>
           <ListItemIcon><AuctionIcon/></ListItemIcon>
-          <ListItemText primary={"Auctions"}/>
+          <ListItemText primary="Auctions"/>
         </ListItem>
-        <ListItem button key={"cart"}>
+        <ListItem button>
           <ListItemIcon><CartIcon/></ListItemIcon>
-          <ListItemText primary={"Cart"}/>
+          <ListItemText primary="Cart"/>
         </ListItem>
-        <ListItem onClick={handleMyAccountNestClick} button key={"my-account"}>
+        <ListItem onClick={handleMyAccountNestClick} button>
           <ListItemIcon><UserIcon/></ListItemIcon>
-          <ListItemText primary={"Account"}/>
+          <ListItemText primary="Account"/>
           {myAccountNestState ? <ExpandLess/> : <ExpandMore/>}
         </ListItem>
         <Collapse in={myAccountNestState} timeout="auto" unmountOnExit>
@@ -227,40 +173,40 @@ export default function Header(props) {
             </ListItem>
           </List>
         </Collapse>
-        <ListItem button key={"contact"}>
+        <ListItem button>
           <ListItemIcon><ContactIcon/></ListItemIcon>
-          <ListItemText primary={"Contact"}/>
+          <ListItemText primary="Contact"/>
         </ListItem>
       </List>
       <Divider/>
       <List>
-        <ListItem onClick={handleCategoriesNestClick} button key={"categories"}>
-          <ListItemText className="Menu-Categories" primary={"Categories"}/>
-          {categoriesNestState ? <ExpandLess/> : <ExpandMore/>}
+        <ListItem onClick={handleCategoriesNestClick} button>
+          <ListItemText className="Menu-Categories" primary="Categories"/>
+          {categoriesMenuNestState ? <ExpandLess/> : <ExpandMore/>}
         </ListItem>
       </List>
       <Divider/>
-      <Collapse in={categoriesNestState} timeout="auto" unmountOnExit>
+      <Collapse in={categoriesMenuNestState} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {
             props.categoriesState !== null ? props.categoriesState.map((category, i) => (
-              <>
-                <ListItem key={i + category.title} onClick={handleSubCategoriesNestClick(category, i)} button className={classes.nested}>
+              <div key={i + 1}>
+                <ListItem onClick={handleCategoryNestClick(i)} button className={classes.nested}>
                   <ListItemText primary={category.title}/>
-                  {subCategoriesNestState[i] ? <ExpandLess/> : <ExpandMore/>}
+                  {categoryNestState[i + 1] ? <ExpandLess/> : <ExpandMore/>}
                 </ListItem>
-                <Collapse in={subCategoriesNestState[i]} timeout="auto" unmountOnExit>
+                <Collapse in={categoryNestState[i + 1]} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
                     {
-                      props.subCategoriesState !== null && props.subCategoriesState[i] !== undefined ? props.subCategoriesState[i].map((subCategory) => (
-                        <ListItem onClick={handleSubCategoryChange} key={i + subCategory.id} button className={classes.nested2}>
+                      props.subCategoriesState !== null && props.subCategoriesState[i + 1] !== undefined ? props.subCategoriesState[i + 1].map((subCategory, j) => (
+                        <ListItem key={j + 1} onClick={handleSubCategoryClick(j)} button className={classes.nestedChange2}>
                           <ListItemText className={classes.nested2Text} primary={subCategory.title}/>
                         </ListItem>
                       )) : <></>
                     }
                   </List>
                 </Collapse>
-              </>
+              </div>
             )) : <></>
           }
         </List>
@@ -268,8 +214,22 @@ export default function Header(props) {
     </div>
   )
   const update = async () => {
+    if (props.initialSlides !== null) {
+      await props.setScrollState({
+        items: props.initialSlides.all,
+        hasMore: true,
+        part: 1
+      })
+    }
     window.scrollTo({top: 0, behavior: "smooth"})
-    setMenuState({ ...menuState, ["left"]: false })
+    setMenuState({ ...menuState, left: false })
+    if (props.categoriesState !== null) {
+      for (let i = 0; i < props.categoriesState.length; i++) {
+        if (categoryNestState[i]) {
+          setCategoryNestState({...categoryNestState, [i]: !categoryNestState[i]})
+        }
+      }
+    }
     props.setSelectedTab(0)
     props.setSelectedSubTab({
       barStyle: {
@@ -283,11 +243,6 @@ export default function Header(props) {
       ...props.subCategoriesState,
       count: 0,
       current: ""
-    })
-    props.setScrollState({
-      items: props.initialSlides.all,
-      hasMore: true,
-      part: 1
     })
     let result = await axios(props.endpoint + "/slides/count")
     props.setSlidesCountState(result.data.data)
@@ -326,7 +281,7 @@ export default function Header(props) {
                 className={classes.input}
                 placeholder="Search for a slide, category or subcategory"
                 inputProps={{
-                  "aria-label": "search for a slide, category or subcategory",
+                  "aria-label": "search for a slide, (sub)category or registration",
                 }}
             />
               <IconButton
@@ -387,7 +342,7 @@ export default function Header(props) {
           </Toolbar>
         </AppBar>
         <Drawer
-          anchor={"left"}
+          anchor="left"
           open={menuState["left"]}
           onClose={toggleMenu("left", false)}
         >

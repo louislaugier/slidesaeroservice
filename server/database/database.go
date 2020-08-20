@@ -4,27 +4,32 @@ import (
 	"context"
 	"database/sql"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/go-redis/redis"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" // Postgres driver
 )
-
-// Postgres is a SQL database pointer, Redis is a Redis client pointer
-var Postgres, Redis = connect()
 
 // Context for Redis
 var Context = context.Background()
 
+// Postgres is a SQL database pointer, Redis is a Redis client pointer
+var Postgres, Redis = connect()
+
 func connect() (*sql.DB, *redis.Client) {
-	db, _ := sql.Open("postgres", "postgres://postgres:postgres@127.0.0.1:5432/sas?sslmode=disable")
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+	db, _ := sql.Open("postgres", "postgres://postgres:"+os.Getenv("DB_PASSWORD")+"@"+os.Getenv("DB_HOST")+":5432/"+os.Getenv("DB_NAME")+"?sslmode=disable")
 	err := db.Ping()
 	if err != nil {
 		panic(err)
 	}
 	rd := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
-		Password: "",
+		Password: os.Getenv("REDIS_PASSWORD"),
 	})
 	_, err = rd.Ping(Context).Result()
 	if err != nil {

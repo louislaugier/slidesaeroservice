@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/louislaugier/sas/server/database"
 
 	sendgrid "github.com/sendgrid/sendgrid-go"
@@ -70,6 +71,9 @@ func GET() func(c *gin.Context) {
 
 // POST user
 func POST() func(c *gin.Context) {
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
 	return func(c *gin.Context) {
 		u := &user{
 			ID:        uuid.New(),
