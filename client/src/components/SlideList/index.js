@@ -4,6 +4,7 @@ import Grid from "@material-ui/core/Grid"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
+import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart'
 import IconButton from "@material-ui/core/IconButton"
 import FilterIcon from "@material-ui/icons/FilterList"
 import Menu from "@material-ui/core/Menu"
@@ -20,6 +21,9 @@ import Radio from "@material-ui/core/Radio"
 import RadioGroup from "@material-ui/core/RadioGroup"
 import FormControl from "@material-ui/core/FormControl"
 import axios from "axios"
+import Alert from '@material-ui/lab/Alert'
+import Collapse from '@material-ui/core/Collapse'
+import CloseIcon from '@material-ui/icons/Close'
 
 const IOSSwitch = withStyles((theme) => ({
   root: {
@@ -27,6 +31,12 @@ const IOSSwitch = withStyles((theme) => ({
     height: 26,
     padding: 0,
     margin: theme.spacing(1)
+  },
+  alert: {
+    width: '100%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    }
   },
   switchBase: {
     padding: 1,
@@ -154,7 +164,7 @@ const styles = (theme) => ({
   }
 })
 
-function SlideList(props) {
+export default withStyles(styles)(function SlideList(props) {
   const {classes} = props
   useEffect(() => {
     const fetchSlidesCount = async () => {
@@ -205,207 +215,233 @@ function SlideList(props) {
   const handleAscdescClose = () => {
     setAscDescState(null)
   }
-
+  const [alertOpen, setAlertOpen] = React.useState(false)
   return (
-    <Grid container justify="center" className={classes.container}>
-      <Grid item xs={12}>
-        <Grid container justify="space-between">
-          <Grid
-            container
-            justify="space-between"
-            className={classes.toolbar}
-            item
-          >
-            <Paper className={classes.paper} square>
-              <Tabs
-                value={props.selectedTab}
-                indicatorColor="primary"
-                textColor="primary"
-                onChange={props.handleCategoryChange}
-                aria-label="slide-type"
-                variant="scrollable"
-                scrollButtons="on"
-              >
-                <Tab key={0} label={"All (" + props.slidesCountState + ")"}/>
-                {
-                  props.categoriesState !== null ? props.categoriesState.map((category, i) => (
-                    <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
-                  )) : null
-                }
-              </Tabs>
-            </Paper>
+    <>
+      <Grid container justify="center" className={classes.container}>
+        <Grid item xs={12}>
+          <Grid container justify="space-between">
+            <Grid
+              container
+              justify="space-between"
+              className={classes.toolbar}
+              item
+            >
+              <Paper className={classes.paper} square>
+                <Tabs
+                  value={props.selectedTab}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  onChange={props.handleCategoryChange}
+                  aria-label="slide-type"
+                  variant="scrollable"
+                  scrollButtons="on"
+                >
+                  <Tab key={0} label={"All (" + props.slidesCountState + ")"}/>
+                  {
+                    props.categoriesState !== null ? props.categoriesState.map((category, i) => (
+                      <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
+                    )) : null
+                  }
+                </Tabs>
+              </Paper>
+            </Grid>
+            <Grid
+              className={classes.otherTools}
+              container
+              item
+            >
+              <FormControl component="fieldset">
+                <RadioGroup className={classes.radioGroup} value={slideTypeState} onChange={handleSlideTypeChange}>
+                  <FormControlLabel value="all" control={<Radio className={classes.radio}/>} label="All"/>
+                  <FormControlLabel value="kodak" control={<Radio className={classes.radio}/>} label="Kodak"/>
+                  <FormControlLabel value="provia" control={<Radio className={classes.radio}/>} label="Provia"/>
+                </RadioGroup>
+              </FormControl>
+              <div className={classes.toolbarFilter}>
+                Sort by
+                <IconButton
+                  className={classes.filter}
+                  aria-label="filter"
+                  color="inherit"
+                  aria-controls="simple-menu"
+                  aria-haspopup="true"
+                  onClick={handleOrderbyOpen}
+                >
+                  <FilterIcon/>
+                </IconButton>
+                <Menu
+                  id="orderby"
+                  anchorEl={orderByState}
+                  keepMounted
+                  open={Boolean(orderByState)}
+                  onClose={handleOrderbyClose}
+                >
+                  <MenuItem onClick={handleOrderbyClose}>Publish date</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Price</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Rating</MenuItem>
+                </Menu>
+                <IconButton
+                  aria-controls="simple-menu"
+                  aria-haspopup="true"
+                  onClick={handleAscdescOpen}
+                  aria-label="up-down"
+                  color="inherit"
+                >
+                  <UpDownIcon />
+                </IconButton>
+                <Menu
+                  id="asc-desc"
+                  anchorEl={ascDescState}
+                  keepMounted
+                  open={Boolean(ascDescState)}
+                  onClose={handleAscdescClose}
+                >
+                  <MenuItem onClick={handleAscdescClose}>
+                    <ArrowDropUpIcon className={classes.arrowUp}/>
+                  </MenuItem>
+                  <MenuItem onClick={handleAscdescClose}>
+                    <ArrowDropUpIcon className={classes.arrowDown}/>
+                  </MenuItem>
+                </Menu>
+              </div>
+              <div className="Auctions-Only">
+                <FormControlLabel
+                  control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
+                />
+                <p className={classes.switchText} style={{opactity: 0.5}}>Auctions only</p>
+              </div>
+            </Grid>
+            <Grid
+              container
+              justify="space-between"
+              className={classes.subToolbar}
+              item
+              style={props.selectedSubTab.barStyle}
+            >
+              <Paper className={classes.paper} square>
+                <Tabs
+                  value={props.selectedSubTab.tab}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  onChange={props.handleSubCategoryChange}
+                  aria-label="slide-type"
+                  variant="scrollable"
+                  scrollButtons="on"
+                >
+                  <Tab key={0} label={"All " + props.subCategoriesState.current + " (" + props.subCategoriesState.count + ")"}/>
+                  {
+                    props.subCategoriesState !== null && props.subCategoriesState[props.selectedTab] !== undefined ? props.subCategoriesState[props.selectedTab].map((category, i) => (
+                      <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
+                    )) : null
+                  }
+                </Tabs>
+              </Paper>
+            </Grid>
           </Grid>
-          <Grid
-            className={classes.otherTools}
-            container
-            item
-          >
-            <FormControl component="fieldset">
-              <RadioGroup className={classes.radioGroup} value={slideTypeState} onChange={handleSlideTypeChange}>
-                <FormControlLabel value="all" control={<Radio className={classes.radio}/>} label="All"/>
-                <FormControlLabel value="kodak" control={<Radio className={classes.radio}/>} label="Kodak"/>
-                <FormControlLabel value="provia" control={<Radio className={classes.radio}/>} label="Provia"/>
-              </RadioGroup>
-            </FormControl>
-            <div className={classes.toolbarFilter}>
-              Sort by
-              <IconButton
-                className={classes.filter}
-                aria-label="filter"
-                color="inherit"
-                aria-controls="simple-menu"
-                aria-haspopup="true"
-                onClick={handleOrderbyOpen}
-              >
-                <FilterIcon/>
-              </IconButton>
-              <Menu
-                id="orderby"
-                anchorEl={orderByState}
-                keepMounted
-                open={Boolean(orderByState)}
-                onClose={handleOrderbyClose}
-              >
-                <MenuItem onClick={handleOrderbyClose}>Publish date</MenuItem>
-                <MenuItem onClick={handleOrderbyClose}>Price</MenuItem>
-                <MenuItem onClick={handleOrderbyClose}>Rating</MenuItem>
-              </Menu>
-              <IconButton
-                aria-controls="simple-menu"
-                aria-haspopup="true"
-                onClick={handleAscdescOpen}
-                aria-label="up-down"
-                color="inherit"
-              >
-                <UpDownIcon />
-              </IconButton>
-              <Menu
-                id="asc-desc"
-                anchorEl={ascDescState}
-                keepMounted
-                open={Boolean(ascDescState)}
-                onClose={handleAscdescClose}
-              >
-                <MenuItem onClick={handleAscdescClose}>
-                  <ArrowDropUpIcon className={classes.arrowUp}/>
-                </MenuItem>
-                <MenuItem onClick={handleAscdescClose}>
-                  <ArrowDropUpIcon className={classes.arrowDown}/>
-                </MenuItem>
-              </Menu>
-            </div>
-            <div className="Auctions-Only">
-              <FormControlLabel
-                control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
-              />
-              <p className={classes.switchText} style={{opactity: 0.5}}>Auctions only</p>
-            </div>
-          </Grid>
-          <Grid
-            container
-            justify="space-between"
-            className={classes.subToolbar}
-            item
-            style={props.selectedSubTab.barStyle}
-          >
-            <Paper className={classes.paper} square>
-              <Tabs
-                value={props.selectedSubTab.tab}
-                indicatorColor="primary"
-                textColor="primary"
-                onChange={props.handleSubCategoryChange}
-                aria-label="slide-type"
-                variant="scrollable"
-                scrollButtons="on"
-              >
-                <Tab key={0} label={"All " + props.subCategoriesState.current + " (" + props.subCategoriesState.count + ")"}/>
-                {
-                  props.subCategoriesState !== null && props.subCategoriesState[props.selectedTab] !== undefined ? props.subCategoriesState[props.selectedTab].map((category, i) => (
-                    <Tab key={i+1} label={category.title + " (" + category.slides_count + ")"}/>
-                  )) : null
-                }
-              </Tabs>
-            </Paper>
-          </Grid>
-        </Grid>
-        <InfiniteScroll
-          dataLength={() => {
-            if (props.selectedTab > 0) {
-              return props.categoriesState[props.selectedTab - 1].slides_count
-            }
-            return props.slidesCountState
-          }}
-          next={() => {
-            let count = props.slidesCountState
-            let category = ""
-            if (props.selectedTab > 0) {
-              count = props.categoriesState[props.selectedTab - 1].slides_count
-              category = "&category_id=" + props.categoriesState[props.selectedTab - 1].id
-              if (props.selectedSubTab.tab > 0) {
-                count = props.subCategoriesState[props.selectedTab][props.selectedSubTab.tab - 1].slides_count
-                category = "&subcategory_id=" + props.subCategoriesState[props.selectedTab][props.selectedSubTab.tab - 1].id
+          <InfiniteScroll
+            dataLength={() => {
+              if (props.selectedTab > 0) {
+                return props.categoriesState[props.selectedTab - 1].slides_count
               }
-            }
-            if (props.scrollState.items.length >= count)  {
-              props.setScrollState({
-                items: props.scrollState.items,
-                hasMore: false,
-                part: props.scrollState.part
-              })
-              return
-            }
-            setTimeout(() => {
-              let result = []
-              const fetchMoreSlides = async () => {
-                result = await axios(
-                  props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc" + category,
-                )
+              return props.slidesCountState
+            }}
+            next={() => {
+              let count = props.slidesCountState
+              let category = ""
+              if (props.selectedTab > 0) {
+                count = props.categoriesState[props.selectedTab - 1].slides_count
+                category = "&category_id=" + props.categoriesState[props.selectedTab - 1].id
+                if (props.selectedSubTab.tab > 0) {
+                  count = props.subCategoriesState[props.selectedTab][props.selectedSubTab.tab - 1].slides_count
+                  category = "&subcategory_id=" + props.subCategoriesState[props.selectedTab][props.selectedSubTab.tab - 1].id
+                }
+              }
+              if (props.scrollState.items.length >= count)  {
                 props.setScrollState({
-                  items: props.scrollState.items.concat(result.data.data),
-                  hasMore: true,
-                  part: props.scrollState.part + 1
+                  items: props.scrollState.items,
+                  hasMore: false,
+                  part: props.scrollState.part
                 })
+                return
               }
-              fetchMoreSlides()
-            }, 500)
-          }}
-          hasMore={props.scrollState.hasMore}
-          className={classes.infiniteScroll}
-          >
-            {
-              props.scrollState.items !== null ? props.scrollState.items.map((slide, i) => (
-                <Grid key={i} item>
-                  <Card style={{
-                      height: 240,
-                      width: 300,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
-                    }} className={classes.card}
-                  >
-                    <CardContent>
-                      <Typography color="textSecondary" gutterBottom>
-                        <span className={classes.slideTitle}>
-                          {slide.title}
-                        </span>
-                        <img style={{
-                          height: 152,
-                          width: 240,
-                          borderRadius: 5
-                        }} src={slide.image_path} alt="Slide"/>
-                        <span className={classes.slidePrice}>
-                          €{slide.price}
-                        </span>
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )) : null
-            }
-        </InfiniteScroll>
+              setTimeout(() => {
+                let result = []
+                const fetchMoreSlides = async () => {
+                  result = await axios(
+                    props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc" + category,
+                  )
+                  props.setScrollState({
+                    items: props.scrollState.items.concat(result.data.data),
+                    hasMore: true,
+                    part: props.scrollState.part + 1
+                  })
+                }
+                fetchMoreSlides()
+              }, 500)
+            }}
+            hasMore={props.scrollState.hasMore}
+            className={classes.infiniteScroll}
+            >
+              {
+                props.scrollState.items !== null ? props.scrollState.items.map((slide, i) => (
+                  <Grid key={i} item>
+                    <Card style={{
+                        height: 240,
+                        width: 300,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }} className={classes.card}
+                    >
+                      <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                          <span className={classes.slideTitle}>
+                            {slide.title}
+                          </span>
+                          <img style={{
+                            height: 152,
+                            width: 240,
+                            borderRadius: 5
+                          }} src={slide.image_path} alt="Slide"/>
+                          <span className="Slide-layer">
+                            <IconButton onClick={()=>setAlertOpen(true)} className="Add-to-cart">
+                              <AddShoppingCartIcon fontSize="large" className="Add-to-cart-icon"/>
+                            </IconButton>
+                          </span>
+                          <span className={classes.slidePrice}>
+                            €{slide.price}
+                          </span>
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )) : null
+              }
+          </InfiniteScroll>
+        </Grid>
       </Grid>
-    </Grid>
+        <div className={classes.alert}>
+          <Collapse in={alertOpen}>
+            <Alert
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setAlertOpen(false)
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+              className="Alert"
+            >
+              Added slide to cart
+            </Alert>
+          </Collapse>
+        </div>
+    </>
   )
-}
-
-export default withStyles(styles)(SlideList)
+})

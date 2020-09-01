@@ -137,3 +137,44 @@ body>.MuiDrawer-root.MuiDrawer-modal{
   justify-content: space-evenly;
   margin-top: 15px
 }
+
+.Slide-layer{
+  height: 152px;
+  margin-top: 12px;
+  width: 240px;
+  position: absolute;
+  background: black;
+  opacity: 0;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.Slide-layer:hover{
+  opacity: .5;
+}
+
+.Add-to-cart{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white !important;
+}
+
+.Add-to-cart-icon{
+  color: white;
+  font-size: 10rem;
+}
+
+.SlideList-slideTitle-30:hover{
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.Alert{
+  position: fixed;
+  bottom: 50px;
+  left: 50px;
+}

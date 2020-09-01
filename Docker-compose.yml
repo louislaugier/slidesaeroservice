@@ -2,16 +2,16 @@ version: "3.8"
 services:
   # app:
   #   build: server
-  postgres:
-    image: postgres:13-alpine
-    ports:
-      - "5432:5432"
-    volumes:
-      - db:/var/lib/postgresql/data/
-    restart: always
-    environment:
-      POSTGRES_DB: sas
-      POSTGRES_PASSWORD: postgres
+  # postgres:
+  #   image: postgres:13-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - db:/var/lib/postgresql/data/
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: sas
+  #     POSTGRES_PASSWORD: postgres
   redis:
     image: redis:6.0.4-alpine
     ports:

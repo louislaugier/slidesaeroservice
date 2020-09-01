@@ -4,6 +4,7 @@ import "./App.css"
 import * as serviceWorker from "./serviceWorker"
 import Header from "./components/Header"
 import SlideList from "./components/SlideList"
+import Cart from "./components/Cart"
 import MUICookieConsent from 'material-ui-cookie-consent'
 import axios from "axios"
 
@@ -131,8 +132,11 @@ function App() {
       })
     }
   }
-  const props = {
+  const [currentPage, setCurrentPage] = useState(0)
+  const context = {
     endpoint: endpoint,
+    currentPage: currentPage,
+    setCurrentPage: setCurrentPage,
     slidesCountState: slidesCountState,
     setSlidesCountState: setSlidesCountState,
     initialSlides: initialSlides,
@@ -150,14 +154,17 @@ function App() {
     handleCategoryChange: handleCategoryChange,
     handleSubCategoryChange: handleSubCategoryChange
   }
+  const pages = {
+    0: <SlideList {...context} />,
+    1: <Cart {...context} />
+  }
+  
   return (
     <div className="App">
       <Header
-        {...props}
+        {...context}
       />
-      <SlideList
-        {...props}
-      />
+      {pages[currentPage]}
       <MUICookieConsent 
         cookieName="sas-cookies"
         componentType="Snackbar"

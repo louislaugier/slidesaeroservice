@@ -153,7 +153,7 @@ export default function Header(props) {
           <ListItemText primary="Auctions"/>
         </ListItem>
         <ListItem button>
-          <ListItemIcon><CartIcon/></ListItemIcon>
+          <ListItemIcon onClick={props.setCurrentPage(0)}><CartIcon/></ListItemIcon>
           <ListItemText primary="Cart"/>
         </ListItem>
         <ListItem onClick={handleMyAccountNestClick} button>
