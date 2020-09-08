@@ -79,7 +79,7 @@ body>.MuiDrawer-root.MuiDrawer-modal{
 }
 
 .MuiDrawer-paper ul.MuiList-root>.MuiButtonBase-root.MuiListItem-root.MuiListItem-gutters.MuiListItem-button{
-  padding-left: 32px;
+  padding-left: 16px;
   color:black;
   left: 0
 }
@@ -91,7 +91,7 @@ body>.MuiDrawer-root.MuiDrawer-modal{
 }
 
 .MuiList-root.MuiList-padding:nth-child(3){
-  padding: 0
+  padding: 0 0 0 16px;
 }
 
 .MuiList-root.MuiList-padding:nth-child(3)>div:first-child>div:first-child{
@@ -177,4 +177,13 @@ body>.MuiDrawer-root.MuiDrawer-modal{
   position: fixed;
   bottom: 50px;
   left: 50px;
+}
+
+a{
+  text-decoration: none;
+  color: inherit;
+}
+
+.MuiListItemIcon-root{
+  justify-content: center;
 }

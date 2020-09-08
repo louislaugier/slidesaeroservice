@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from "react"
+import axios from "axios"
+import {Cookies} from "react-cookie"
 import {withStyles} from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import Card from "@material-ui/core/Card"
@@ -20,7 +22,6 @@ import FormControlLabel from "@material-ui/core/FormControlLabel"
 import Radio from "@material-ui/core/Radio"
 import RadioGroup from "@material-ui/core/RadioGroup"
 import FormControl from "@material-ui/core/FormControl"
-import axios from "axios"
 import Alert from '@material-ui/lab/Alert'
 import Collapse from '@material-ui/core/Collapse'
 import CloseIcon from '@material-ui/icons/Close'
@@ -31,12 +32,6 @@ const IOSSwitch = withStyles((theme) => ({
     height: 26,
     padding: 0,
     margin: theme.spacing(1)
-  },
-  alert: {
-    width: '100%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
-    }
   },
   switchBase: {
     padding: 1,
@@ -87,6 +82,12 @@ const IOSSwitch = withStyles((theme) => ({
 const styles = (theme) => ({
   container: {
     flexGrow: 1
+  },
+  alert: {
+    width: '100%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    }
   },
   otherTools: {
     alignItems: "center",
@@ -190,7 +191,7 @@ export default withStyles(styles)(function SlideList(props) {
     }
     fetchSlides()
     // eslint-disable-next-line
-  }, [])
+  }, [props.endpoint, props.setSlidesCountState, props.setCategoriesState, props.setScrollState, props.setInitialSlides])
   const [slideTypeState, setSlideTypeState] = useState("all")
   const handleSlideTypeChange = (event) => {
     setSlideTypeState(event.target.value)
@@ -405,7 +406,25 @@ export default withStyles(styles)(function SlideList(props) {
                             borderRadius: 5
                           }} src={slide.image_path} alt="Slide"/>
                           <span className="Slide-layer">
-                            <IconButton onClick={()=>setAlertOpen(true)} className="Add-to-cart">
+                            <IconButton onClick={async () =>{
+                              setAlertOpen(true)
+                              let key = ""
+                              let d = new Date()
+                              d.setTime(d.getTime() + 2592000000)
+                              const cookies = new Cookies()
+                              if (cookies.get("slidesaeroservice") === undefined) {
+                                key = "new_guest_cookie"
+                              } else {
+                                key = cookies.get("slidesaeroservice")
+                              }
+                              await axios.post(props.endpoint + "/cart?key=" + key + "&slide=" + slide.id)
+                              .then((res) => {
+                                cookies.set("slidesaeroservice", res.data.data, {path: "/", expires: d})
+                              })
+                              .catch((e) => {
+                                console.log(e)
+                              })
+                            }} className="Add-to-cart">
                               <AddShoppingCartIcon fontSize="large" className="Add-to-cart-icon"/>
                             </IconButton>
                           </span>
@@ -421,27 +440,27 @@ export default withStyles(styles)(function SlideList(props) {
           </InfiniteScroll>
         </Grid>
       </Grid>
-        <div className={classes.alert}>
-          <Collapse in={alertOpen}>
-            <Alert
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={() => {
-                    setAlertOpen(false)
-                  }}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              }
-              className="Alert"
-            >
-              Added slide to cart
-            </Alert>
-          </Collapse>
-        </div>
+      <div className={classes.alert}>
+        <Collapse in={alertOpen}>
+          <Alert
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setAlertOpen(false)
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            className="Alert"
+          >
+            Added slide to cart
+          </Alert>
+        </Collapse>
+      </div>
     </>
   )
 })

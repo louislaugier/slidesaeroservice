@@ -45,7 +45,7 @@ func CartPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userID := c.Request.URL.Query()["key"][0]
 		key := userID
-		if userID == "guest" {
+		if userID == "new_guest_cookie" {
 			key = uuid.New().String()
 		}
 		_, err := database.Redis.LPush(database.Context, key, c.Request.URL.Query()["slide"][0]).Result()

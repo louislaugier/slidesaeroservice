@@ -1,5 +1,6 @@
 import React from "react"
 import {makeStyles} from "@material-ui/core/styles"
+import {Link} from "react-router-dom"
 import AppBar from "@material-ui/core/AppBar"
 import Toolbar from "@material-ui/core/Toolbar"
 import Button from "@material-ui/core/Button"
@@ -144,18 +145,24 @@ export default function Header(props) {
       role="presentation"
     >
       <List>
-        <ListItem onClick={update} button>
-          <ListItemIcon><HomeIcon/></ListItemIcon>
-          <ListItemText primary="Home"/>
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon><AuctionIcon/></ListItemIcon>
-          <ListItemText primary="Auctions"/>
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon onClick={props.setCurrentPage(0)}><CartIcon/></ListItemIcon>
-          <ListItemText primary="Cart"/>
-        </ListItem>
+        <Link to="/">
+          <ListItem onClick={update} button>
+            <ListItemIcon><HomeIcon/></ListItemIcon>
+            <ListItemText primary="Home"/>
+          </ListItem>
+        </Link>
+        <Link to="/auctions">
+          <ListItem button>
+            <ListItemIcon><AuctionIcon/></ListItemIcon>
+            <ListItemText primary="Auctions"/>
+          </ListItem>
+        </Link>
+        <Link to="/cart">
+          <ListItem button>
+            <ListItemIcon><CartIcon/></ListItemIcon>
+            <ListItemText primary="Cart"/>
+          </ListItem>
+        </Link>
         <ListItem onClick={handleMyAccountNestClick} button>
           <ListItemIcon><UserIcon/></ListItemIcon>
           <ListItemText primary="Account"/>
@@ -163,20 +170,26 @@ export default function Header(props) {
         </ListItem>
         <Collapse in={myAccountNestState} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItem button className={classes.nested}>
-              <ListItemIcon><LoginIcon/></ListItemIcon>
-              <ListItemText primary="Login"/>
-            </ListItem>
-            <ListItem button className={classes.nested}>
-              <ListItemIcon><SignupIcon/></ListItemIcon>
-              <ListItemText primary="Sign up"/>
-            </ListItem>
+            <Link to="/login">
+              <ListItem button className={classes.nested}>
+                <ListItemIcon><LoginIcon/></ListItemIcon>
+                <ListItemText primary="Login"/>
+              </ListItem>
+            </Link>
+            <Link to="/signup">
+              <ListItem button className={classes.nested}>
+                <ListItemIcon><SignupIcon/></ListItemIcon>
+                <ListItemText primary="Sign up"/>
+              </ListItem>
+            </Link>
           </List>
         </Collapse>
-        <ListItem button>
-          <ListItemIcon><ContactIcon/></ListItemIcon>
-          <ListItemText primary="Contact"/>
-        </ListItem>
+        <Link to="/contact">
+          <ListItem button>
+            <ListItemIcon><ContactIcon/></ListItemIcon>
+            <ListItemText primary="Contact"/>
+          </ListItem>
+        </Link>
       </List>
       <Divider/>
       <List>
@@ -272,9 +285,11 @@ export default function Header(props) {
               >
                 <MenuIcon/>
               </IconButton>
-              <Button onClick={update} className={classes.siteTitle} color="inherit">
-                SlidesAeroService
-              </Button>
+              <Link to="/">
+                <Button onClick={update} className={classes.siteTitle} color="inherit">
+                  SlidesAeroService
+                </Button>
+              </Link>
             </div>
             <Paper component="form" className={classes.searchBar}>
               <InputBase
@@ -293,9 +308,11 @@ export default function Header(props) {
               </IconButton>
             </Paper>
             <div>
-              <IconButton aria-label="cart" color="inherit">
-                <CartIcon/>
-              </IconButton>
+              <Link to="/cart">
+                <IconButton aria-label="cart" color="inherit">
+                  <CartIcon/>
+                </IconButton>
+              </Link>
               <IconButton
                 aria-controls="simple-menu"
                 aria-haspopup="true"
@@ -313,8 +330,12 @@ export default function Header(props) {
                 onClose={handleProfileClose}
                 TransitionComponent={Fade}
               >
-                <MenuItem onClick={handleProfileClose}>Login</MenuItem>
-                <MenuItem onClick={handleProfileClose}>Sign up</MenuItem>
+                <Link to="/login">
+                  <MenuItem onClick={handleProfileClose}>Login</MenuItem>
+                </Link>
+                <Link to="/signup">
+                  <MenuItem onClick={handleProfileClose}>Sign up</MenuItem>
+                </Link>
               </Menu>
               <IconButton
                 aria-controls="more"
@@ -333,10 +354,16 @@ export default function Header(props) {
                 onClose={handleMoreClose}
                 TransitionComponent={Fade}
               >
-                <MenuItem onClick={handleMoreClose}>About</MenuItem>
+                <Link to="/about">
+                  <MenuItem onClick={handleMoreClose}>About</MenuItem>
+                </Link>
                 <Divider/>
-                <MenuItem onClick={handleMoreClose}>Terms of use</MenuItem>
-                <MenuItem onClick={handleMoreClose}>Privacy policy</MenuItem>
+                <Link to="/terms">
+                  <MenuItem onClick={handleMoreClose}>Terms of use</MenuItem>
+                </Link>
+                <Link to="/privacy">
+                  <MenuItem onClick={handleMoreClose}>Privacy policy</MenuItem>
+                </Link>
               </Menu>
             </div>
           </Toolbar>

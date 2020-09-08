@@ -33,12 +33,15 @@ type Slide struct {
 // GET slides or a slide
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		_, ID := c.Request.URL.Query()["id"]
+		id, ID := c.Request.URL.Query()["id"]
 		query := ""
+		if ID {
+			query = " WHERE id = '" + id[0] + "'"
+		}
 		search, isSearch := c.Request.URL.Query()["search"]
 		if isSearch {
 			if ID {
-				query = " AND title = '" + search[0] + "'"
+				query = " WHERE id = '" + id[0] + "' AND title = '" + search[0] + "'"
 			} else {
 				query = " WHERE title = '" + search[0] + "'"
 			}

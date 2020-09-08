@@ -16,7 +16,7 @@ func Start() *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		ExposeHeaders:    []string{"Content-Type", "Date", "Transfer-Encoding"},
+		ExposeHeaders:    []string{"Content-Type", "Date"},
 		AllowCredentials: true,
 		// AllowOriginFunc: func(origin string) bool {
 		// 	return origin == "http://localhost:3000"

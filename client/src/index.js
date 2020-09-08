@@ -1,6 +1,7 @@
 import React, {useState} from "react"
 import ReactDOM from "react-dom"
 import "./App.css"
+import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 import * as serviceWorker from "./serviceWorker"
 import Header from "./components/Header"
 import SlideList from "./components/SlideList"
@@ -132,11 +133,8 @@ function App() {
       })
     }
   }
-  const [currentPage, setCurrentPage] = useState(0)
   const context = {
     endpoint: endpoint,
-    currentPage: currentPage,
-    setCurrentPage: setCurrentPage,
     slidesCountState: slidesCountState,
     setSlidesCountState: setSlidesCountState,
     initialSlides: initialSlides,
@@ -154,23 +152,24 @@ function App() {
     handleCategoryChange: handleCategoryChange,
     handleSubCategoryChange: handleSubCategoryChange
   }
-  const pages = {
-    0: <SlideList {...context} />,
-    1: <Cart {...context} />
-  }
   
   return (
-    <div className="App">
-      <Header
-        {...context}
-      />
-      {pages[currentPage]}
-      <MUICookieConsent 
-        cookieName="sas-cookies"
-        componentType="Snackbar"
-        message="This website uses cookies for functional and analytical purposes. Please refer to privacy policy to learn more."
-      />
-    </div>
+    <Router>
+      <div className="App">
+        <Header
+          {...context}
+        />
+        <Switch>
+          <Route exact path="/" render={() => <SlideList {...context} />} />
+          <Route exact path="/cart" render={() => <Cart {...context} />} />
+        </Switch>
+        <MUICookieConsent 
+          cookieName="sas-cookies"
+          componentType="Snackbar"
+          message="This website uses cookies for functional and analytical purposes. Please refer to privacy policy to learn more."
+        />
+      </div>
+    </Router>
   )
 }
 
