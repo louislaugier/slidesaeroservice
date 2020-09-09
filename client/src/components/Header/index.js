@@ -157,7 +157,9 @@ export default function Header(props) {
             <ListItemText primary="Auctions"/>
           </ListItem>
         </Link>
-        <Link to="/cart">
+        <Link onClick={() => {
+          setMenuState({ ...menuState, left: false })
+        }} to="/cart">
           <ListItem button>
             <ListItemIcon><CartIcon/></ListItemIcon>
             <ListItemText primary="Cart"/>

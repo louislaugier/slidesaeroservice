@@ -429,7 +429,7 @@ export default withStyles(styles)(function SlideList(props) {
                             </IconButton>
                           </span>
                           <span className={classes.slidePrice}>
-                            €{slide.price}
+                            {slide.price}€
                           </span>
                         </Typography>
                       </CardContent>

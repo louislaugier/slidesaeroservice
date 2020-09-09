@@ -187,3 +187,12 @@ a{
 .MuiListItemIcon-root{
   justify-content: center;
 }
+
+.MuiPaper-root.MuiPaper-elevation2.MuiPaper-rounded{
+  position: relative;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  margin-top: 50px;
+}
