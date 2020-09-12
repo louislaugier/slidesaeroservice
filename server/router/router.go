@@ -39,7 +39,7 @@ func Start() *gin.Engine {
 	r.PUT("/api/v1/user", user.PUT())
 	r.DELETE("/api/v1/user", user.DELETE())
 	r.PUT("/api/v1/user/activate", user.Activation())
-	r.GET("/api/v1/user/reset-password", user.PasswordTokenGET())
+	r.POST("/api/v1/user/reset-password", user.PasswordTokenPOST())
 	r.DELETE("/api/v1/user/emails-unsubscribe", user.ContactDELETE())
 
 	r.GET("/api/v1/login", session.TokenGET())

@@ -133,6 +133,7 @@ function App() {
       })
     }
   }
+  const [activeCartStep, setActiveCartStep] = React.useState(0)
   const context = {
     endpoint: endpoint,
     slidesCountState: slidesCountState,
@@ -150,9 +151,10 @@ function App() {
     selectedSubTab: selectedSubTab,
     setSelectedSubTab: setSelectedSubTab,
     handleCategoryChange: handleCategoryChange,
-    handleSubCategoryChange: handleSubCategoryChange
+    handleSubCategoryChange: handleSubCategoryChange,
+    activeCartStep: activeCartStep,
+    setActiveCartStep: setActiveCartStep
   }
-  
   return (
     <Router>
       <div className="App">

@@ -74,8 +74,8 @@ func Activation() func(c *gin.Context) {
 	}
 }
 
-// PasswordTokenGET by sending token by email
-func PasswordTokenGET() func(c *gin.Context) {
+// PasswordTokenPOST sends token by email
+func PasswordTokenPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		u := user{}
 		email := c.Request.URL.Query()["email"][0]

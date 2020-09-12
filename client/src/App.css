@@ -196,3 +196,11 @@ a{
   margin: auto;
   margin-top: 50px;
 }
+
+#cart-items div:last-child{
+  margin-bottom: 0;
+}
+
+a{
+  cursor: pointer;
+}

@@ -239,7 +239,8 @@ export default function Header(props) {
     window.scrollTo({top: 0, behavior: "smooth"})
     setMenuState({ ...menuState, left: false })
     if (props.categoriesState !== null) {
-      for (let i = 0; i < props.categoriesState.length; i++) {
+      let len = props.categoriesState.length
+      for (let i = 0; i < len; i++) {
         if (categoryNestState[i]) {
           setCategoryNestState({...categoryNestState, [i]: !categoryNestState[i]})
         }
@@ -311,7 +312,9 @@ export default function Header(props) {
             </Paper>
             <div>
               <Link to="/cart">
-                <IconButton aria-label="cart" color="inherit">
+                <IconButton onClick={() => {
+                  props.setActiveCartStep(0)
+                }} aria-label="cart" color="inherit">
                   <CartIcon/>
                 </IconButton>
               </Link>
