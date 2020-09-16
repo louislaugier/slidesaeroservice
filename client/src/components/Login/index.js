@@ -2,9 +2,9 @@ import React from "react"
 import {Link} from "react-router-dom"
 import {withStyles} from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
-import Paper from "@material-ui/core/Paper"
 import TextField from "@material-ui/core/TextField"
 import Button from "@material-ui/core/Button"
+import Checkbox from "@material-ui/core/Checkbox"
 
 const theme = (theme) => ({
     container: {
@@ -47,11 +47,19 @@ const theme = (theme) => ({
     forgot: {
         textDecoration: "underline",
         fontSize: 14,
-        position: "relative",
-        left: -10
     },
     button: {
         margin: "20px 0"
+    },
+    remember: {
+        display: "flex",
+        alignItems: "center",
+        position: "relative",
+        left: -12,
+        marginTop: 15,
+        "& > *": {
+            fontSize: 15
+          }
     }
   })
 
@@ -60,19 +68,23 @@ export default withStyles(theme)(function Login(props) {
   return (
     <Grid container justify="center">
         <main className={classes.layout}>
-            <Paper className={classes.paper}>
-                <h1 className={classes.title}>Login</h1>
-                <form className={classes.form} noValidate autoComplete="off">
-                    <TextField id="outlined-email" label="Email" variant="outlined"/>
-                    <TextField id="outlined-pass" label="Password" type="password" variant="outlined"/>
-                    <Link to="/forgot-password" className={classes.forgot}>Forgot password?</Link>
-                    <Button variant="contained" color="primary" className={classes.button}>
-                        <Link to="/">
-                            Login
-                        </Link>
-                    </Button>
-                </form>
-            </Paper>
+            <h1 className={classes.title}>Login</h1>
+            <form className={classes.form} noValidate autoComplete="off">
+                <TextField label="Email"/>
+                <TextField label="Password" type="password"/>
+                <div className={classes.remember}>
+                    <Checkbox color="primary"/>
+                    <span>Remember me</span>
+                </div>
+                <div>
+                    <Link to="/forgot_password" className={classes.forgot}>Forgot password?</Link> | <Link to="/signup" className={classes.forgot}>Create account</Link>
+                </div>
+                <Button variant="contained" color="primary" className={classes.button}>
+                    <Link to="/">
+                        Login
+                    </Link>
+                </Button>
+            </form>
         </main>
     </Grid>
   )

@@ -12,11 +12,9 @@ import IconButton from "@material-ui/core/IconButton"
 import FilterIcon from "@material-ui/icons/FilterList"
 import Menu from "@material-ui/core/Menu"
 import MenuItem from "@material-ui/core/MenuItem"
-import UpDownIcon from "@material-ui/icons/ImportExport"
 import Paper from "@material-ui/core/Paper"
 import Tabs from "@material-ui/core/Tabs"
 import Tab from "@material-ui/core/Tab"
-import ArrowDropUpIcon from "@material-ui/icons/ArrowRightAlt"
 import InfiniteScroll from "react-infinite-scroll-component"
 import Switch from "@material-ui/core/Switch"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
@@ -82,7 +80,8 @@ const IOSSwitch = withStyles((theme) => ({
 
 const styles = (theme) => ({
   container: {
-    flexGrow: 1
+    flexGrow: 1,
+    display: "block !important"
   },
   alert: {
     width: '100%',
@@ -143,12 +142,6 @@ const styles = (theme) => ({
   pos: {
     marginBottom: 12
   },
-  arrowUp: {
-    transform: "rotate(-90deg)"
-  },
-  arrowDown: {
-    transform: "rotate(90deg)"
-  },
   slidePrice: {
     color: "black"
   },
@@ -195,18 +188,11 @@ export default withStyles(styles)(function SlideList(props) {
     setSlideTypeState(event.target.value)
   }
   const [orderByState, setOrderByState] = useState(null)
-  const [ascDescState, setAscDescState] = useState(null)
   const handleOrderbyOpen = (event) => {
     setOrderByState(event.currentTarget)
   }
   const handleOrderbyClose = () => {
     setOrderByState(null)
-  }
-  const handleAscdescOpen = (event) => {
-    setAscDescState(event.currentTarget)
-  }
-  const handleAscdescClose = () => {
-    setAscDescState(null)
   }
   const [alertOpen, setAlertOpen] = React.useState(false)
   return (
@@ -270,32 +256,10 @@ export default withStyles(styles)(function SlideList(props) {
                   open={Boolean(orderByState)}
                   onClose={handleOrderbyClose}
                 >
-                  <MenuItem onClick={handleOrderbyClose}>Publish date</MenuItem>
-                  <MenuItem onClick={handleOrderbyClose}>Price</MenuItem>
-                  <MenuItem onClick={handleOrderbyClose}>Rating</MenuItem>
-                </Menu>
-                <IconButton
-                  aria-controls="simple-menu"
-                  aria-haspopup="true"
-                  onClick={handleAscdescOpen}
-                  aria-label="up-down"
-                  color="inherit"
-                >
-                  <UpDownIcon />
-                </IconButton>
-                <Menu
-                  id="asc-desc"
-                  anchorEl={ascDescState}
-                  keepMounted
-                  open={Boolean(ascDescState)}
-                  onClose={handleAscdescClose}
-                >
-                  <MenuItem onClick={handleAscdescClose}>
-                    <ArrowDropUpIcon className={classes.arrowUp}/>
-                  </MenuItem>
-                  <MenuItem onClick={handleAscdescClose}>
-                    <ArrowDropUpIcon className={classes.arrowDown}/>
-                  </MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Lowest price to highest</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Highest price to lowest</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Newest to oldest</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Oldest to newest</MenuItem>
                 </Menu>
               </div>
               <Link to={props.switchURL}>

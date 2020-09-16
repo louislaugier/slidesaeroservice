@@ -2,7 +2,6 @@ import React from "react"
 import {Link} from "react-router-dom"
 import {withStyles} from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
-import Paper from "@material-ui/core/Paper"
 import TextField from "@material-ui/core/TextField"
 import Button from "@material-ui/core/Button"
 
@@ -20,16 +19,6 @@ const theme = (theme) => ({
             marginRight: "auto"
         }
     },
-    paper: {
-        marginTop: theme.spacing(3),
-        marginBottom: theme.spacing(3),
-        padding: theme.spacing(2),
-        [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-            marginTop: theme.spacing(6),
-            marginBottom: theme.spacing(6),
-            padding: theme.spacing(3)
-        }
-    },
     title: {
         textAlign: "center",
         marginBottom: 25,
@@ -44,14 +33,8 @@ const theme = (theme) => ({
           width: "25ch"
         }
     },
-    forgot: {
-        textDecoration: "underline",
-        fontSize: 14,
-        position: "relative",
-        left: -10
-    },
     button: {
-        margin: "20px 0"
+        marginTop: 40
     }
   })
 
@@ -60,19 +43,17 @@ export default withStyles(theme)(function Signup(props) {
   return (
     <Grid container justify="center">
         <main className={classes.layout}>
-            <Paper className={classes.paper}>
-                <h1 className={classes.title}>Sign up</h1>
-                <form className={classes.form} noValidate autoComplete="off">
-                    <TextField id="outlined-email" label="Email" variant="outlined"/>
-                    <TextField id="outlined-pass" label="Password" type="password" variant="outlined"/>
-                    <TextField id="outlined-pass" label="Confirm password" type="password" variant="outlined"/>
-                    <Button variant="contained" color="primary" className={classes.button}>
-                        <Link to="/">
-                            Create account
-                        </Link>
-                    </Button>
-                </form>
-            </Paper>
+            <h1 className={classes.title}>Sign up</h1>
+            <form className={classes.form} noValidate autoComplete="off">
+                <TextField label="Email"/>
+                <TextField label="Password" type="password"/>
+                <TextField label="Confirm password" type="password"/>
+                <Button variant="contained" color="primary" className={classes.button}>
+                    <Link to="/">
+                        Create account
+                    </Link>
+                </Button>
+            </form>
         </main>
     </Grid>
   )

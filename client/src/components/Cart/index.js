@@ -168,8 +168,10 @@ export default withStyles(theme)(function Cart(props) {
               ) : (
                 <>
                   <div id="cart-items" className={classes.items}>
-                    {props.activeCartStep === 0 ? <>{
-                      itemsState.slides.map((slide, i) => (
+                    
+                    {props.activeCartStep === 0 ? <>
+                      {itemsState.slides.length === 0 ? <i style={{textAlign: "center", display: "block"}}>Cart is empty</i> : <></>}
+                      {itemsState.slides.map((slide, i) => (
                         <div className={classes.item} key={i}>
                           <Link to={"/" + slide.title.toLowerCase().replace(/ /g, "_")}>
                             <img className={classes.image} src={slide.image_path} alt="Slide"/>

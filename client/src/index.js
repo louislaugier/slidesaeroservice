@@ -178,7 +178,7 @@ function App() {
           <Route exact path="/signup" render={() => <Signup {...slidesContext}/>}/>
           <Route exact path="/login" render={() => <Login {...slidesContext}/>}/>
           <Route exact path="/cart" render={() => <Cart {...cartContext}/>}/>
-          <Route exact path="/cart" render={() => <Contact/>}/>
+          <Route exact path="/contact" render={() => <Contact/>}/>
           <Route exact path="/about" render={() => <About/>}/>
           <Route exact path="/terms" render={() => <Terms/>}/>
           <Route exact path="/privacy" render={() => <Privacy/>}/>
