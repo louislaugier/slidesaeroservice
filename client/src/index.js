@@ -5,9 +5,16 @@ import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 import * as serviceWorker from "./serviceWorker"
 import Header from "./components/Header"
 import SlideList from "./components/SlideList"
+import Slide from "./components/Slide"
+import Signup from "./components/Signup"
+import Login from "./components/Login"
 import Cart from "./components/Cart"
+import Contact from "./components/Contact"
 import MUICookieConsent from 'material-ui-cookie-consent'
 import axios from "axios"
+import About from "./components/About"
+import Terms from "./components/Terms"
+import Privacy from "./components/Privacy"
 
 function App() {
   if (!navigator.cookieEnabled) {
@@ -134,7 +141,7 @@ function App() {
     }
   }
   const [activeCartStep, setActiveCartStep] = React.useState(0)
-  const context = {
+  const slidesContext = {
     endpoint: endpoint,
     slidesCountState: slidesCountState,
     setSlidesCountState: setSlidesCountState,
@@ -152,6 +159,9 @@ function App() {
     setSelectedSubTab: setSelectedSubTab,
     handleCategoryChange: handleCategoryChange,
     handleSubCategoryChange: handleSubCategoryChange,
+  }
+  const cartContext = {
+    endpoint: endpoint,
     activeCartStep: activeCartStep,
     setActiveCartStep: setActiveCartStep
   }
@@ -159,11 +169,20 @@ function App() {
     <Router>
       <div className="App">
         <Header
-          {...context}
+          {...slidesContext}
+          {...cartContext}
         />
         <Switch>
-          <Route exact path="/" render={() => <SlideList {...context} />} />
-          <Route exact path="/cart" render={() => <Cart {...context} />} />
+          <Route exact path="/" render={() => <SlideList {...slidesContext} auctionOnlyState={false} switchTextOpacity={0.5} switchURL="/auctions"/>}/>
+          <Route exact path="/auctions" render={() => <SlideList {...slidesContext} auctionOnlyState={true} switchTextOpacity={1} switchURL="/"/>}/>
+          <Route exact path="/signup" render={() => <Signup {...slidesContext}/>}/>
+          <Route exact path="/login" render={() => <Login {...slidesContext}/>}/>
+          <Route exact path="/cart" render={() => <Cart {...cartContext}/>}/>
+          <Route exact path="/cart" render={() => <Contact/>}/>
+          <Route exact path="/about" render={() => <About/>}/>
+          <Route exact path="/terms" render={() => <Terms/>}/>
+          <Route exact path="/privacy" render={() => <Privacy/>}/>
+          <Route render={() => <Slide {...slidesContext} />}/>
         </Switch>
         <MUICookieConsent 
           cookieName="sas-cookies"

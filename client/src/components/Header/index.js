@@ -151,7 +151,9 @@ export default function Header(props) {
             <ListItemText primary="Home"/>
           </ListItem>
         </Link>
-        <Link to="/auctions">
+        <Link onClick={() => {
+          setMenuState({ ...menuState, left: false })
+        }} to="/auctions">
           <ListItem button>
             <ListItemIcon><AuctionIcon/></ListItemIcon>
             <ListItemText primary="Auctions"/>
@@ -172,13 +174,17 @@ export default function Header(props) {
         </ListItem>
         <Collapse in={myAccountNestState} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <Link to="/login">
+            <Link onClick={() => {
+              setMenuState({ ...menuState, left: false })
+            }} to="/login">
               <ListItem button className={classes.nested}>
                 <ListItemIcon><LoginIcon/></ListItemIcon>
                 <ListItemText primary="Login"/>
               </ListItem>
             </Link>
-            <Link to="/signup">
+            <Link onClick={() => {
+              setMenuState({ ...menuState, left: false })
+            }} to="/signup">
               <ListItem button className={classes.nested}>
                 <ListItemIcon><SignupIcon/></ListItemIcon>
                 <ListItemText primary="Sign up"/>
@@ -186,7 +192,9 @@ export default function Header(props) {
             </Link>
           </List>
         </Collapse>
-        <Link to="/contact">
+        <Link onClick={() => {
+          setMenuState({ ...menuState, left: false })
+        }} to="/contact">
           <ListItem button>
             <ListItemIcon><ContactIcon/></ListItemIcon>
             <ListItemText primary="Contact"/>

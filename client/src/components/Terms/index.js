@@ -8,14 +8,14 @@ const theme = (theme) => ({
       flexGrow: 1
     },
     layout: {
-        width: 'auto',
+        width: "auto",
         marginLeft: theme.spacing(2),
         marginRight: theme.spacing(2),
         [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
             width: 900,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-        },
+            marginLeft: "auto",
+            marginRight: "auto"
+        }
     },
     paper: {
         marginTop: theme.spacing(3),
@@ -24,19 +24,25 @@ const theme = (theme) => ({
         [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
             marginTop: theme.spacing(6),
             marginBottom: theme.spacing(6),
-            padding: theme.spacing(3),
-        },
+            padding: theme.spacing(3)
+        }
     },
+    title: {
+        textAlign: "center",
+        marginBottom: 25,
+        marginTop: 0
+    }
   })
 
-export default withStyles(theme)(function Slide(props) {
+export default withStyles(theme)(function Terms(props) {
   const {classes} = props
   return (
     <Grid container justify="center">
         <main className={classes.layout}>
-          <Paper className={classes.paper}>
-            Slide single or 404
-          </Paper>
+            <Paper className={classes.paper}>
+                <h1 className={classes.title}>Terms of use</h1>
+                <p>Description</p>
+            </Paper>
         </main>
     </Grid>
   )

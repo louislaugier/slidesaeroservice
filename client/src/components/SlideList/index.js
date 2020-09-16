@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react"
 import axios from "axios"
 import {Cookies} from "react-cookie"
+import {Link} from "react-router-dom"
 import {withStyles} from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
 import Card from "@material-ui/core/Card"
@@ -94,7 +95,7 @@ const styles = (theme) => ({
     marginLeft: 40
   },
   toolbar: {
-    marginTop: 30,
+    marginTop: 128,
     width: "100%",
     display: "flex"
   },
@@ -157,9 +158,6 @@ const styles = (theme) => ({
     display: "flex",
     alignItems: "center"
   },
-  switchText: {
-    opacity: 0.5
-  },
   infiniteScroll: {
     marginTop: 20
   }
@@ -195,12 +193,6 @@ export default withStyles(styles)(function SlideList(props) {
   const [slideTypeState, setSlideTypeState] = useState("all")
   const handleSlideTypeChange = (event) => {
     setSlideTypeState(event.target.value)
-  }
-  const [auctionOnlyState, setAuctionOnlyState] = useState({
-    checked: false
-  })
-  const handleAuctionsOnlyChange = (event) => {
-    setAuctionOnlyState({...auctionOnlyState, [event.target.name]: event.target.checked})
   }
   const [orderByState, setOrderByState] = useState(null)
   const [ascDescState, setAscDescState] = useState(null)
@@ -306,12 +298,14 @@ export default withStyles(styles)(function SlideList(props) {
                   </MenuItem>
                 </Menu>
               </div>
-              <div className="Auctions-Only">
-                <FormControlLabel
-                  control={<IOSSwitch checked={auctionOnlyState.checkedB} onChange={handleAuctionsOnlyChange} name="checked"/>}
-                />
-                <p className={classes.switchText} style={{opactity: 0.5}}>Auctions only</p>
-              </div>
+              <Link to={props.switchURL}>
+                <div className="Auctions-Only">
+                  <FormControlLabel
+                    control={<IOSSwitch checked={props.auctionOnlyState} name="checked"/>}
+                  />
+                  <p style={{opacity: props.switchTextOpacity}}>Auctions only</p>
+                </div>
+              </Link>
             </Grid>
             <Grid
               container
@@ -397,16 +391,18 @@ export default withStyles(styles)(function SlideList(props) {
                     >
                       <CardContent>
                         <Typography color="textSecondary" gutterBottom>
-                          <span className={classes.slideTitle}>
-                            {slide.title}
-                          </span>
+                          <Link to={"/" + slide.title.toLowerCase().replace(/ /g, '_')}>
+                            <span className={classes.slideTitle}>
+                              {slide.title}
+                            </span>
+                          </Link>
                           <img style={{
                             height: 152,
                             width: 240,
                             borderRadius: 5
                           }} src={slide.image_path} alt="Slide"/>
                           <span className="Slide-layer">
-                            <IconButton onClick={async () =>{
+                            <IconButton onClick={async () => {
                               setAlertOpen(true)
                               let key = ""
                               let d = new Date()

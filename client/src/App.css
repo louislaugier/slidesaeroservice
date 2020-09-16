@@ -10,16 +10,12 @@ body {
 .App>div:first-child{
   z-index: 2;
   position: fixed;
-  width: 100%
+  width: 100%;
+  margin-top: 64px;
 }
 
 body>.MuiDrawer-root.MuiDrawer-modal{
   z-index: 0 !important
-}
-
-.App>.MuiGrid-root{
-  position: relative;
-  top: 40px
 }
 
 .MuiToolbar-root.MuiToolbar-regular.MuiToolbar-gutters div:last-child{
@@ -175,8 +171,8 @@ body>.MuiDrawer-root.MuiDrawer-modal{
 
 .Alert{
   position: fixed;
-  bottom: 50px;
-  left: 50px;
+  top: 64px;
+  right: 125px;
 }
 
 a{
@@ -203,4 +199,15 @@ a{
 
 a{
   cursor: pointer;
+}
+
+.MuiGrid-root.MuiGrid-container.MuiGrid-justify-xs-center{
+  display: flex;
+  align-items: center;
+  height: 100vh;
+  margin-top: -64px;
+}
+
+.MuiGrid-root.SlideList-container-13.MuiGrid-container.MuiGrid-justify-xs-center, .MuiGrid-root.SlideList-container-30.MuiGrid-container.MuiGrid-justify-xs-center{
+  display: block;
 }

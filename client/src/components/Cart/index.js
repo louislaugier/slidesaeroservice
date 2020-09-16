@@ -4,36 +4,32 @@ import {Link} from "react-router-dom"
 import axios from "axios"
 import {withStyles} from "@material-ui/core/styles"
 import Grid from "@material-ui/core/Grid"
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Paper from '@material-ui/core/Paper'
-import Stepper from '@material-ui/core/Stepper'
-import Step from '@material-ui/core/Step'
-import StepLabel from '@material-ui/core/StepLabel'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Paper from "@material-ui/core/Paper"
+import Stepper from "@material-ui/core/Stepper"
+import Step from "@material-ui/core/Step"
+import StepLabel from "@material-ui/core/StepLabel"
+import Button from "@material-ui/core/Button"
+import Typography from "@material-ui/core/Typography"
+import Select from "@material-ui/core/Select"
+import MenuItem from "@material-ui/core/MenuItem"
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogContentText from "@material-ui/core/DialogContentText"
+import DialogTitle from "@material-ui/core/DialogTitle"
 
 const theme = (theme) => ({
   container: {
     flexGrow: 1
   },
-  appBar: {
-    position: 'relative',
-  },
   layout: {
-    width: 'auto',
+    width: "auto",
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
       width: 900,
-      marginLeft: 'auto',
-      marginRight: 'auto',
+      marginLeft: "auto",
+      marginRight: "auto",
     },
   },
   paper: {
@@ -50,8 +46,8 @@ const theme = (theme) => ({
     padding: theme.spacing(3, 0, 5),
   },
   buttons: {
-    display: 'flex',
-    justifyContent: 'flex-end',
+    display: "flex",
+    justifyContent: "flex-end",
   },
   button: {
     marginTop: theme.spacing(3),
@@ -63,23 +59,23 @@ const theme = (theme) => ({
     borderRadius: 5
   },
   item: {
-    display: 'flex',
+    display: "flex",
     marginBottom: 50
   },
   title: {
     fontSize: 18
   },
   description: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   },
   itemContainer: {
     marginLeft: 30,
-    width: '72.5%'
+    width: "72.5%"
   },
   remove: {
-    textDecoration: 'underline'
+    textDecoration: "underline"
   },
   price: {
     fontWeight: 800,
@@ -120,7 +116,7 @@ export default withStyles(theme)(function Cart(props) {
       getCartItems()
     }
   }, [cart, props.endpoint, itemsState.columns])
-  const steps = ['Cart', 'Shipping', 'Checkout']
+  const steps = ["Cart", "Shipping", "Checkout"]
   const handleNext = () => {
     props.setActiveCartStep(props.activeCartStep + 1)
     if (props.activeCartStep === 2) {
@@ -136,7 +132,6 @@ export default withStyles(theme)(function Cart(props) {
   }
   return (
     <>
-    <CssBaseline/>
       <Grid container justify="center">
         <main className={classes.layout}>
           <Paper className={classes.paper}>
@@ -159,12 +154,16 @@ export default withStyles(theme)(function Cart(props) {
                   <Typography variant="subtitle1">
                     Order #2001539 awaiting payment.
                   </Typography>
-                  <Button className={classes.button}>
-                    Home
-                  </Button>
-                  <Button variant="contained" color="primary" className={classes.button}>
-                    View orders
-                  </Button>
+                  <Link to="/">
+                    <Button className={classes.button}>
+                      Home
+                    </Button>
+                  </Link>
+                  <Link to="/orders">
+                    <Button variant="contained" color="primary" className={classes.button}>
+                      View orders
+                    </Button>
+                  </Link>
                 </>
               ) : (
                 <>
@@ -172,12 +171,12 @@ export default withStyles(theme)(function Cart(props) {
                     {props.activeCartStep === 0 ? <>{
                       itemsState.slides.map((slide, i) => (
                         <div className={classes.item} key={i}>
-                          <Link>
+                          <Link to={"/" + slide.title.toLowerCase().replace(/ /g, "_")}>
                             <img className={classes.image} src={slide.image_path} alt="Slide"/>
                           </Link>
                           <div className={classes.itemContainer}>
                             <div className={classes.description}>
-                              <Link className={classes.title}>{slide.title}</Link>
+                              <Link to={"/" + slide.title.toLowerCase().replace(/ /g, "_")} className={classes.title}>{slide.title}</Link>
                               <Select onChange={(e) => {
                                 let items = itemsState.slides
                                 let diff = items[i].count - e.target.value
@@ -256,7 +255,7 @@ export default withStyles(theme)(function Cart(props) {
                       onClick={handleNext}
                       className={classes.button}
                     >
-                      {props.activeCartStep === steps.length - 1 ? 'Place order' : 'Next'}
+                      {props.activeCartStep === steps.length - 1 ? "Place order" : "Next"}
                     </Button>
                   </div>
                 </>
@@ -264,7 +263,7 @@ export default withStyles(theme)(function Cart(props) {
             </>
           </Paper>
           <Typography variant="body2" color="textSecondary" align="center">
-            {'Copyright © '} SlidesAeroService {new Date().getFullYear() + "."}
+            {"Copyright © "} SlidesAeroService {new Date().getFullYear() + "."}
           </Typography>
         </main>
       </Grid>
