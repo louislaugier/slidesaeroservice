@@ -37,7 +37,7 @@ const theme = (theme) => ({
     marginBottom: theme.spacing(3),
     padding: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-      marginTop: theme.spacing(6),
+      marginTop: theme.spacing(18),
       marginBottom: theme.spacing(6),
       padding: theme.spacing(3),
     },
@@ -170,7 +170,7 @@ export default withStyles(theme)(function Cart(props) {
                   <div id="cart-items" className={classes.items}>
                     
                     {props.activeCartStep === 0 ? <>
-                      {itemsState.slides.length === 0 ? <i style={{textAlign: "center", display: "block"}}>Cart is empty</i> : <></>}
+                      {itemsState.slides.length === 0 ? <i style={{textAlign: "center", display: "block", marginTop: 25}}>Cart is empty</i> : <></>}
                       {itemsState.slides.map((slide, i) => (
                         <div className={classes.item} key={i}>
                           <Link to={"/" + slide.title.toLowerCase().replace(/ /g, "_")}>
@@ -251,14 +251,15 @@ export default withStyles(theme)(function Cart(props) {
                         Back
                       </Button>
                     )}
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleNext}
-                      className={classes.button}
-                    >
-                      {props.activeCartStep === steps.length - 1 ? "Place order" : "Next"}
-                    </Button>
+                      <Button
+                        disabled={itemsState.slides.length === 0 ? true : false}
+                        variant="contained"
+                        color="primary"
+                        onClick={handleNext}
+                        className={classes.button}
+                      >
+                        {props.activeCartStep === steps.length - 1 ? "Place order" : "Next"}
+                      </Button>
                   </div>
                 </>
               )}

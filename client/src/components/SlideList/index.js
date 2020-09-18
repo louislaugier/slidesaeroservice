@@ -238,7 +238,7 @@ export default withStyles(styles)(function SlideList(props) {
                 </RadioGroup>
               </FormControl>
               <div className={classes.toolbarFilter}>
-                Sort by
+                Sort
                 <IconButton
                   className={classes.filter}
                   aria-label="filter"
@@ -256,8 +256,8 @@ export default withStyles(styles)(function SlideList(props) {
                   open={Boolean(orderByState)}
                   onClose={handleOrderbyClose}
                 >
-                  <MenuItem onClick={handleOrderbyClose}>Lowest price to highest</MenuItem>
-                  <MenuItem onClick={handleOrderbyClose}>Highest price to lowest</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Lowest to highest price</MenuItem>
+                  <MenuItem onClick={handleOrderbyClose}>Highest to lowest price</MenuItem>
                   <MenuItem onClick={handleOrderbyClose}>Newest to oldest</MenuItem>
                   <MenuItem onClick={handleOrderbyClose}>Oldest to newest</MenuItem>
                 </Menu>

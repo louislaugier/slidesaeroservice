@@ -173,16 +173,16 @@ function App() {
           {...cartContext}
         />
         <Switch>
-          <Route exact path="/" render={() => <SlideList {...slidesContext} auctionOnlyState={false} switchTextOpacity={0.5} switchURL="/auctions"/>}/>
+          <Route exact path="/" render={() => <SlideList {...slidesContext} auctionOnlyState={false} switchTextOpacity={0.4} switchURL="/auctions"/>}/>
           <Route exact path="/auctions" render={() => <SlideList {...slidesContext} auctionOnlyState={true} switchTextOpacity={1} switchURL="/"/>}/>
-          <Route exact path="/signup" render={() => <Signup {...slidesContext}/>}/>
-          <Route exact path="/login" render={() => <Login {...slidesContext}/>}/>
+          <Route exact path="/signup" render={() => <Signup/>}/>
+          <Route exact path="/login" render={() => <Login/>}/>
           <Route exact path="/cart" render={() => <Cart {...cartContext}/>}/>
           <Route exact path="/contact" render={() => <Contact/>}/>
           <Route exact path="/about" render={() => <About/>}/>
           <Route exact path="/terms" render={() => <Terms/>}/>
           <Route exact path="/privacy" render={() => <Privacy/>}/>
-          <Route render={() => <Slide {...slidesContext} />}/>
+          <Route render={() => <Slide/>}/>
         </Switch>
         <MUICookieConsent 
           cookieName="sas-cookies"

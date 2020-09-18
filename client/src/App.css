@@ -202,7 +202,6 @@ a{
 }
 
 .MuiGrid-root.MuiGrid-container.MuiGrid-justify-xs-center{
-  display: flex;
   align-items: center;
   height: 100vh;
   margin-top: -64px;
