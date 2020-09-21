@@ -327,9 +327,7 @@ export default withStyles(styles)(function SlideList(props) {
               setTimeout(() => {
                 let result = []
                 const fetchMoreSlides = async () => {
-                  result = await axios(
-                    props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc" + category,
-                  )
+                  result = await axios(props.endpoint + "/slides?limit=56&offset=" + (56 * props.scrollState.part).toString() + "&orderby=created_at&order=desc" + category)
                   props.setScrollState({
                     items: props.scrollState.items.concat(result.data.data),
                     hasMore: true,
@@ -368,18 +366,18 @@ export default withStyles(styles)(function SlideList(props) {
                           <span className="Slide-layer">
                             <IconButton onClick={async () => {
                               setAlertOpen(true)
-                              let key = ""
+                              let token = ""
                               let d = new Date()
                               d.setTime(d.getTime() + 2592000000)
                               const cookies = new Cookies()
-                              if (cookies.get("slidesaeroservice") === undefined) {
-                                key = "new_guest_cookie"
+                              if (cookies.get("slidesaeroservice-cart") === undefined) {
+                                token = "new_guest_cookie"
                               } else {
-                                key = cookies.get("slidesaeroservice")
+                                token = cookies.get("slidesaeroservice-cart")
                               }
-                              await axios.post(props.endpoint + "/cart?key=" + key + "&slide=" + slide.id)
+                              await axios.post(props.endpoint + "/cart?CartToken=" + token + "&slide=" + slide.id)
                               .then((res) => {
-                                cookies.set("slidesaeroservice", res.data.data, {path: "/", expires: d})
+                                cookies.set("slidesaeroservice-cart", res.data.data, {path: "/", expires: d})
                               })
                               .catch((e) => {
                                 console.log(e)

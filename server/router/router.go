@@ -44,6 +44,7 @@ func Start() *gin.Engine {
 
 	r.GET("/api/v1/login", session.TokenGET())
 	r.GET("/api/v1/session", session.GET())
+	r.DELETE("/api/v1/session", session.DELETE())
 	r.GET("/api/v1/cart", session.CartGET())
 	r.POST("/api/v1/cart", session.CartPOST())
 	r.DELETE("/api/v1/cart", session.CartDELETE())

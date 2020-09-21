@@ -20,7 +20,7 @@ type user struct {
 	FirstName     string    `json:"first_name"`
 	LastName      string    `json:"last_name"`
 	Email         string    `json:"email"`
-	PasswordHash  string    `json:"password_hash"`
+	Password      string    `json:"password"`
 	StreetAddress string    `json:"street_address"`
 	PostCode      string    `json:"postcode"`
 	City          string    `json:"city"`
@@ -36,13 +36,13 @@ type user struct {
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
-		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, is_admin, email_verified FROM users" + queryParams + ";")
+		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password, street_address, postcode, city, country, created_at, updated_at, is_admin, email_verified FROM users" + queryParams + ";")
 		defer userRows.Close()
 		if err == nil {
 			users := []*user{}
 			for userRows.Next() {
 				u := &user{}
-				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.PasswordHash, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.IsAdmin, &u.EmailVerified)
+				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Password, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt, &u.IsAdmin, &u.EmailVerified)
 				users = append(users, u)
 			}
 			c.JSON(200, &gin.H{
@@ -85,7 +85,7 @@ func POST() func(c *gin.Context) {
 		json.Unmarshal(payload, u)
 		tx, err := database.Postgres.Begin()
 		if err == nil {
-			tx.Exec("INSERT INTO users (id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", u.ID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.IsAdmin)
+			tx.Exec("INSERT INTO users (id, first_name, last_name, email, password, street_address, postcode, city, country, created_at, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", u.ID, u.FirstName, u.LastName, u.Email, u.Password, u.StreetAddress, u.PostCode, u.City, u.Country, u.CreatedAt, u.IsAdmin)
 			tx.Commit()
 			activationToken := uuid.New()
 			d, _ := time.ParseDuration("1h")
@@ -122,17 +122,17 @@ func PUT() func(c *gin.Context) {
 		tx, err := database.Postgres.Begin()
 		if err == nil {
 			msg := "OK"
-			if col == "password_hash" {
+			if col == "password" {
 				// if c.Request.URL.Query()["val"][0] == redis.get(email)
 				op := c.Request.URL.Query()["old_pwd"][0]
-				userRow, _ := database.Postgres.Query("SELECT email, password_hash FROM users" + queryParams + ";")
+				userRow, _ := database.Postgres.Query("SELECT email, password FROM users" + queryParams + ";")
 				defer userRow.Close()
 				u := user{}
 				for userRow.Next() {
-					userRow.Scan(&u.Email, &u.PasswordHash)
+					userRow.Scan(&u.Email, &u.Password)
 				}
-				if op == u.PasswordHash {
-					tx.Exec("UPDATE users SET password_hash = $1, updated_at = $2"+queryParams+";", val, time.Now())
+				if op == u.Password {
+					tx.Exec("UPDATE users SET password = $1, updated_at = $2"+queryParams+";", val, time.Now())
 					database.Redis.Del(database.Context, u.Email)
 				} else {
 					msg = "Incorrect password"
@@ -166,12 +166,12 @@ func PUT() func(c *gin.Context) {
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
-		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password_hash, street_address, postcode, city, country, created_at, updated_at, FROM users" + queryParams + ";")
+		userRows, err := database.Postgres.Query("SELECT id, first_name, last_name, email, password, street_address, postcode, city, country, created_at, updated_at, FROM users" + queryParams + ";")
 		defer userRows.Close()
 		if err == nil {
 			u := &user{}
 			for userRows.Next() {
-				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.PasswordHash, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt)
+				userRows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Password, &u.StreetAddress, &u.PostCode, &u.City, &u.Country, &u.CreatedAt, &u.UpdatedAt)
 			}
 			tx, _ := database.Postgres.Begin()
 			_, err = tx.Exec("DELETE FROM users" + queryParams + ";")

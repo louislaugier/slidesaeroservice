@@ -12,7 +12,7 @@ import (
 // CartGET from Redis
 func CartGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		items, err := database.Redis.LRange(database.Context, c.Request.URL.Query()["key"][0], 0, -1).Result()
+		items, err := database.Redis.LRange(database.Context, c.Request.URL.Query()["cartToken"][0], 0, -1).Result()
 		if err == nil {
 			c.JSON(200, &gin.H{
 				"statusCode": "200",
@@ -43,12 +43,12 @@ func CartGET() func(c *gin.Context) {
 // CartPOST to Redis
 func CartPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		userID := c.Request.URL.Query()["key"][0]
-		key := userID
+		userID := c.Request.URL.Query()["cartToken"][0]
+		account := userID
 		if userID == "new_guest_cookie" {
-			key = uuid.New().String()
+			account = uuid.New().String()
 		}
-		_, err := database.Redis.LPush(database.Context, key, c.Request.URL.Query()["slide"][0]).Result()
+		_, err := database.Redis.LPush(database.Context, account, c.Request.URL.Query()["slide"][0]).Result()
 		if err == nil {
 			c.JSON(201, &gin.H{
 				"statusCode": "201",
@@ -57,7 +57,7 @@ func CartPOST() func(c *gin.Context) {
 				"meta": gin.H{
 					"query": c.Request.URL.Query(),
 				},
-				"data": key,
+				"data": account,
 			})
 		} else {
 			c.JSON(500, &gin.H{
@@ -77,7 +77,7 @@ func CartPOST() func(c *gin.Context) {
 func CartDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		quantity, _ := strconv.ParseInt(c.Request.URL.Query()["count"][0], 10, 64)
-		_, err := database.Redis.LRem(database.Context, c.Request.URL.Query()["key"][0], quantity, c.Request.URL.Query()["slide"][0]).Result()
+		_, err := database.Redis.LRem(database.Context, c.Request.URL.Query()["cartToken"][0], quantity, c.Request.URL.Query()["slide"][0]).Result()
 		if err == nil {
 			c.JSON(200, &gin.H{
 				"statusCode": "200",

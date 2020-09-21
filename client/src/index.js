@@ -176,7 +176,7 @@ function App() {
           <Route exact path="/" render={() => <SlideList {...slidesContext} auctionOnlyState={false} switchTextOpacity={0.4} switchURL="/auctions"/>}/>
           <Route exact path="/auctions" render={() => <SlideList {...slidesContext} auctionOnlyState={true} switchTextOpacity={1} switchURL="/"/>}/>
           <Route exact path="/signup" render={() => <Signup/>}/>
-          <Route exact path="/login" render={() => <Login/>}/>
+          <Route exact path="/login" render={() => <Login endpoint={endpoint}/>}/>
           <Route exact path="/cart" render={() => <Cart {...cartContext}/>}/>
           <Route exact path="/contact" render={() => <Contact/>}/>
           <Route exact path="/about" render={() => <About/>}/>

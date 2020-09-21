@@ -88,11 +88,11 @@ export default withStyles(theme)(function Cart(props) {
   const [itemsState, setItemsState] = useState({
     slides: []  
   })
-  const cart = new Cookies().get("slidesaeroservice")
+  const cartToken = new Cookies().get("slidesaeroservice-cart")
   useEffect(() => {
-    if (cart !== undefined) {
+    if (cartToken !== undefined) {
       const getCartItems = async () => {
-        let IDs = await axios(props.endpoint + "/cart?key=" + cart)
+        let IDs = await axios(props.endpoint + "/cart?cartToken=" + cartToken)
         let items = []
         IDs.data.data.forEach(async (id, i) => {
           let item = await axios(props.endpoint + "/slides?id=" + id)
@@ -115,7 +115,7 @@ export default withStyles(theme)(function Cart(props) {
       }
       getCartItems()
     }
-  }, [cart, props.endpoint, itemsState.columns])
+  }, [cartToken, props.endpoint, itemsState.columns])
   const steps = ["Cart", "Shipping", "Checkout"]
   const handleNext = () => {
     props.setActiveCartStep(props.activeCartStep + 1)
@@ -187,13 +187,13 @@ export default withStyles(theme)(function Cart(props) {
                                   setItemsState({
                                     slides: items
                                   })
-                                  axios.delete(props.endpoint + "/cart?key=" + cart + "&slide=" + slide.id + "&count=" + diff)
+                                  axios.delete(props.endpoint + "/cart?cartToken=" + cartToken + "&slide=" + slide.id + "&count=" + diff)
                                 } else if (diff < 0) {
                                   items[i].count = e.target.value
                                   setItemsState({
                                     slides: items
                                   })
-                                  axios.post(props.endpoint + "/cart?key=" + cart + "&slide=" + slide.id + "&count=" + Math.abs(diff))
+                                  axios.post(props.endpoint + "/cart?cartToken=" + cartToken + "&slide=" + slide.id + "&count=" + Math.abs(diff))
                                 }
                               }} value={slide.count || 1}>
                                 {[...Array(slide.stock)].map((e, i) => {
@@ -229,7 +229,7 @@ export default withStyles(theme)(function Cart(props) {
                                 setItemsState({
                                   slides: items
                                 })
-                                await axios.delete(props.endpoint + "/cart?key=" + cart + "&slide=" + slide.id + "&count=" + slide.count || 1)
+                                await axios.delete(props.endpoint + "/cart?cartToken=" + cartToken + "&slide=" + slide.id + "&count=" + slide.count || 1)
                               }} color="primary" autoFocus>
                                 Confirm
                               </Button>

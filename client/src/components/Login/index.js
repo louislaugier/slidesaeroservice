@@ -1,6 +1,8 @@
-import React from "react"
-import {Link} from "react-router-dom"
+import React, {useState} from "react"
+import {Cookies} from "react-cookie"
+import {Link, Redirect} from "react-router-dom"
 import {withStyles} from "@material-ui/core/styles"
+import axios from "axios"
 import Grid from "@material-ui/core/Grid"
 import TextField from "@material-ui/core/TextField"
 import Button from "@material-ui/core/Button"
@@ -64,28 +66,53 @@ const theme = (theme) => ({
   })
 
 export default withStyles(theme)(function Login(props) {
-  const {classes} = props
-  return (
-    <Grid container justify="center">
-        <main className={classes.layout}>
-            <h1 className={classes.title}>Login</h1>
-            <form className={classes.form} noValidate autoComplete="off">
-                <TextField label="Email"/>
-                <TextField label="Password" type="password"/>
-                <div className={classes.remember}>
-                    <Checkbox color="primary"/>
-                    <span>Remember me</span>
-                </div>
-                <div>
-                    <Link to="/forgot_password" className={classes.forgot}>Forgot password?</Link> | <Link to="/signup" className={classes.forgot}>Create account</Link>
-                </div>
-                <Button variant="contained" color="primary" className={classes.button}>
-                    <Link to="/">
-                        Login
-                    </Link>
-                </Button>
-            </form>
-        </main>
-    </Grid>
-  )
+    const {classes} = props
+    const [emailState, setEmailState] = useState("")
+    const [passwordState, setPasswordState] = useState("")
+    const sessionToken = new Cookies().get("slidesaeroservice-session")
+    if (sessionToken === undefined) {
+        return (
+            <Grid container justify="center">
+                <main className={classes.layout}>
+                    <h1 className={classes.title}>Login</h1>
+                    <form className={classes.form} noValidate autoComplete="off">
+                        <TextField onChange={(e) => {
+                            setEmailState(e.target.value)
+                        }} value={emailState !== "" ? emailState : ""} label="Email"/>
+                        <TextField onChange={(e) => {
+                            setPasswordState(e.target.value)
+                        }} value={passwordState} label="Password" type="password"/>
+                        <div className={classes.remember}>
+                            <Checkbox color="primary"/>
+                            <span>Remember me</span>
+                        </div>
+                        <div>
+                            <Link to="/forgot_password" className={classes.forgot}>Forgot password?</Link> | <Link to="/signup" className={classes.forgot}>Create account</Link>
+                        </div>
+                        <Button onClick={async () => {
+                            const cart = new Cookies().get("slidesaeroservice-cart")
+                            const res = await axios(props.endpoint + "/login?guestCart=" + (cart !== undefined ? cart : "none") + "&email=" + emailState + "&password=" + passwordState).catch((e) => {
+                                if (e.response.status === 401) {
+                                    alert("Wrong credentials. Please try again.")
+                                } else {
+                                    alert("Unexpected server error.")
+                                }
+                            })
+                            if (res) {
+                                let d = new Date()
+                                d.setTime(d.getTime() + 2592000000)
+                                new Cookies().set("slidesaeroservice-session", res.data.data, {path: "/", expires: d})
+                                // get user ID by token and set sas-cart cookie to ID
+                                return <Redirect to="/"/>
+                            }
+                        }} variant="contained" color="primary" className={classes.button}>
+                            Login
+                        </Button>
+                    </form>
+                </main>
+            </Grid>
+        )
+    } else {
+        return <Redirect to="/"/>
+    }
 })

@@ -1,4 +1,6 @@
 import React from "react"
+import {Cookies} from "react-cookie"
+import axios from "axios"
 import {makeStyles} from "@material-ui/core/styles"
 import {Link} from "react-router-dom"
 import AppBar from "@material-ui/core/AppBar"
@@ -31,7 +33,11 @@ import LoginIcon from "@material-ui/icons/ExitToApp"
 import SignupIcon from "@material-ui/icons/AssignmentInd"
 import Fade from "@material-ui/core/Fade"
 import ScrollTopIcon from "@material-ui/icons/KeyboardArrowUp"
-import axios from "axios"
+import LogoutIcon from "@material-ui/icons/PowerSettingsNew"
+import AddressIcon from "@material-ui/icons/ContactMail"
+import BidsIcon from "@material-ui/icons/CallMade"
+import OrdersIcon from "@material-ui/icons/Assignment"
+import WatchlistIcon from "@material-ui/icons/Visibility"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -173,24 +179,71 @@ export default function Header(props) {
           {myAccountNestState ? <ExpandLess/> : <ExpandMore/>}
         </ListItem>
         <Collapse in={myAccountNestState} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <Link onClick={() => {
-              setMenuState({ ...menuState, left: false })
-            }} to="/login">
-              <ListItem button className={classes.nested}>
-                <ListItemIcon><LoginIcon/></ListItemIcon>
-                <ListItemText primary="Login"/>
-              </ListItem>
-            </Link>
-            <Link onClick={() => {
-              setMenuState({ ...menuState, left: false })
-            }} to="/signup">
-              <ListItem button className={classes.nested}>
-                <ListItemIcon><SignupIcon/></ListItemIcon>
-                <ListItemText primary="Sign up"/>
-              </ListItem>
-            </Link>
-          </List>
+          {sessionToken === undefined ? <>
+            <List component="div" disablePadding>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/login">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><LoginIcon/></ListItemIcon>
+                  <ListItemText primary="Login"/>
+                </ListItem>
+              </Link>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/signup">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><SignupIcon/></ListItemIcon>
+                  <ListItemText primary="Sign up"/>
+                </ListItem>
+              </Link>
+            </List>
+          </> : <>
+            <List component="div" disablePadding>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/orders">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><OrdersIcon/></ListItemIcon>
+                  <ListItemText primary="Orders"/>
+                </ListItem>
+              </Link>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/addresses">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><AddressIcon/></ListItemIcon>
+                  <ListItemText primary="Addresses"/>
+                </ListItem>
+              </Link>
+              <Divider/>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/bids">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><BidsIcon/></ListItemIcon>
+                  <ListItemText primary="Bids"/>
+                </ListItem>
+              </Link>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/watchlist">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><WatchlistIcon/></ListItemIcon>
+                  <ListItemText primary="Watchlist"/>
+                </ListItem>
+              </Link>
+              <Divider/>
+              <Link onClick={() => {
+                setMenuState({ ...menuState, left: false })
+              }} to="/logout">
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon><LogoutIcon/></ListItemIcon>
+                  <ListItemText primary="Logout"/>
+                </ListItem>
+              </Link>
+            </List>
+          </>}
         </Collapse>
         <Link onClick={() => {
           setMenuState({ ...menuState, left: false })
@@ -282,6 +335,7 @@ export default function Header(props) {
       all: result.data.data
     })
   }
+  const sessionToken = new Cookies().get("slidesaeroservice-session")
   return (
     <>
       <div className={classes.root}>
@@ -333,23 +387,60 @@ export default function Header(props) {
                 color="inherit"
                 aria-label="account"
               >
-                <MoreIcon/>
+                {sessionToken === undefined ? <MoreIcon/> : <UserIcon/>}
+                
               </IconButton>
-              <Menu
-                id="profile-menu"
-                anchorEl={accountButtonState}
-                keepMounted
-                open={Boolean(accountButtonState)}
-                onClose={handleProfileClose}
-                TransitionComponent={Fade}
-              >
-                <Link to="/login">
-                  <MenuItem onClick={handleProfileClose}>Login</MenuItem>
-                </Link>
-                <Link to="/signup">
-                  <MenuItem onClick={handleProfileClose}>Sign up</MenuItem>
-                </Link>
-              </Menu>
+              {sessionToken === undefined ? <>
+                <Menu
+                  id="profile-menu"
+                  anchorEl={accountButtonState}
+                  keepMounted
+                  open={Boolean(accountButtonState)}
+                  onClose={handleProfileClose}
+                  TransitionComponent={Fade}
+                >
+                  <Link to="/login">
+                    <MenuItem onClick={handleProfileClose}>Login</MenuItem>
+                  </Link>
+                  <Link to="/signup">
+                    <MenuItem onClick={handleProfileClose}>Sign up</MenuItem>
+                  </Link>
+                </Menu>
+                </> : <>
+                  <Menu
+                    id="profile-menu"
+                    anchorEl={accountButtonState}
+                    keepMounted
+                    open={Boolean(accountButtonState)}
+                    onClose={handleProfileClose}
+                    TransitionComponent={Fade}
+                  >
+                    <Link to="/orders">
+                      <MenuItem onClick={handleProfileClose}>Orders</MenuItem>
+                    </Link>
+                    <Link to="/addresses">
+                      <MenuItem onClick={handleProfileClose}>Addresses</MenuItem>
+                    </Link>
+                    <Divider/>
+                    <Link to="/bids">
+                      <MenuItem onClick={handleProfileClose}>Bids</MenuItem>
+                    </Link>
+                    <Link to="/watchlist">
+                      <MenuItem onClick={handleProfileClose}>Watchlist</MenuItem>
+                    </Link>
+                    <Divider/>
+                    <Link to="/">
+                      <MenuItem onClick={() => {
+                        handleProfileClose()
+                        // cookie.remove("sas-session") + sas cart
+                        // await session delete
+                      }}>Logout</MenuItem>
+                    </Link>
+                  </Menu>
+                </>
+                
+              
+              }
               <IconButton
                 aria-controls="more"
                 aria-haspopup="true"
