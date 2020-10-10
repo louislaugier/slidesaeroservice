@@ -70,7 +70,9 @@ export default withStyles(theme)(function Login(props) {
     const [emailState, setEmailState] = useState("")
     const [passwordState, setPasswordState] = useState("")
     const sessionToken = new Cookies().get("slidesaeroservice-session")
-    if (sessionToken === undefined) {
+    if (sessionToken !== undefined) {
+        return <Redirect to="/"/>
+    } else {
         return (
             <Grid container justify="center">
                 <main className={classes.layout}>
@@ -112,7 +114,5 @@ export default withStyles(theme)(function Login(props) {
                 </main>
             </Grid>
         )
-    } else {
-        return <Redirect to="/"/>
     }
 })
